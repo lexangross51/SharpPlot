@@ -1,9 +1,7 @@
-﻿using System;
-using System.Drawing;
-using System.Windows;
-using System.Windows.Input;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Wpf;
+﻿using System.Windows.Input;
+using SharpGL;
+using SharpGL.Enumerations;
+using SharpGL.WPF;
 using SharpPlot.Viewport;
 using SharpPlot.Text;
 using SharpPlot.Render;
@@ -18,60 +16,51 @@ public partial class MainWindow
     public MainWindow()
     {
         InitializeComponent();
-
-        OpenTkControl.Start(new GLWpfControlSettings()
-        {
-            MajorVersion = 2,
-            MinorVersion = 1,
-            //RenderContinuously = false,
-        });
-
+        
         _axesViewer = new AxesViewer();
         var textMes = TextPrinter.TextMeasure("0", new SharpPlotFont());
         _graphic = new BaseGraphic(
+            GlControl.OpenGL,
             new ScreenSize(Width, Height), 
             new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, Height / Width, true),
             new Indent(textMes.Height, textMes.Height));
     }
 
-    public void Render()
+    private void Render()
     {
-        GL.ClearColor(Color.White);
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadIdentity();
-        GL.MatrixMode(MatrixMode.Modelview);
-        GL.LoadIdentity();
-        GL.Viewport(0, 0, (int)Width, (int)Height);
-        GL.Ortho(-1, 1, -1, 1, -1, 1);
-
-        GL.Color3(Color.Black);
-        GL.Begin(PrimitiveType.Lines);
-        GL.Vertex2(-1, -0.8);
-        GL.Vertex2(1, -0.8);
-        GL.End();
-
-        //_axesViewer.Draw(_graphic);
+        _graphic.GL.ClearColor(1f, 1f, 1f, 1f);
+        _graphic.GL.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+        _graphic.GL.MatrixMode(MatrixMode.Modelview);
+        _graphic.GL.LoadIdentity();
+        // _graphic.GL.MatrixMode(MatrixMode.Projection);
+        // _graphic.GL.LoadIdentity();
+        // _graphic.GL.Viewport(0, 0, (int)Width, (int)Height);
+        // _graphic.GL.Ortho(-1, 1, -1, 1, -1, 1);
+        // _graphic.GL.Color(0f, 0f, 0f);
+        // _graphic.GL.Begin(OpenGL.GL_LINES);
+        // _graphic.GL.Vertex(-1, -0.8);
+        // _graphic.GL.Vertex(1, -0.8);
+        // _graphic.GL.End();
+        _axesViewer.Draw(_graphic);
     }
-
-    private void OpenTkControl_OnRender(TimeSpan obj)
+    
+    private void OnRender(object sender, OpenGLRoutedEventArgs args)
     {
         Render();
     }
-
-    private void OpenTkControl_OnMouseWheel(object sender, MouseWheelEventArgs e)
+    
+    private void OnMouseWheel(object sender, MouseWheelEventArgs e)
     {
         var point = _graphic.Projection.FromProjectionToWorld(e.GetPosition(this), _graphic.ScreenSize, _graphic.Indent);
         _graphic.Projection.Scale(point, e.Delta);
         _graphic.UpdateViewMatrix();
-        OpenTkControl.InvalidateVisual();
     }
 
-    private void OpenTkControl_OnSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        var newVp = _graphic.GetNewViewPort(new ScreenSize(Width, Height));
-        GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
-        _graphic.UpdateViewMatrix();
-        OpenTkControl.InvalidateVisual();
-    }
+    // private void OpenTkControl_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    // {
+    //     var newVp = _graphic.GetNewViewPort(new ScreenSize(e.NewSize.Width, e.NewSize.Height));
+    //     _graphic.GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
+    //     _graphic.UpdateViewMatrix();
+    //     GlControl.InvalidateVisual();
+    // }
 }

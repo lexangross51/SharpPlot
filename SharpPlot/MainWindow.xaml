@@ -3,16 +3,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:wpf="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
+        xmlns:glControl="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         mc:Ignorable="d"
-        Title="MainWindow"
-        Width="600"
-        Height="300">
-    <Grid>
-        <wpf:GLWpfControl
-            x:Name="OpenTkControl"
-            Render="OpenTkControl_OnRender"
-            MouseWheel="OpenTkControl_OnMouseWheel"
-            SizeChanged="OpenTkControl_OnSizeChanged"/>
+        Title="SharpPlot"
+        Width="600" Height="300">
+    <Grid x:Name="MainGrid">
+        <glControl:OpenGLControl Name="GlControl"
+                                 OpenGLDraw="OnRender"
+                                 MouseWheel="OnMouseWheel"/>
     </Grid>
 </Window>

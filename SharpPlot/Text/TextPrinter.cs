@@ -1,7 +1,8 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
-using OpenTK.Graphics.OpenGL;
+using SharpGL;
+using SharpGL.SceneGraph.Assets;
 using SharpPlot.Render;
 
 namespace SharpPlot.Text;
@@ -33,56 +34,43 @@ public static class TextPrinter
                 textImage.RotateFlip(RotateFlipType.Rotate90FlipX);
             }
         }
-
-        int textureId = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
+        
         BitmapData data = textImage.LockBits(
             new Rectangle(0, 0, textImage.Width, textImage.Height),
             ImageLockMode.ReadOnly,
-            System.Drawing.Imaging.PixelFormat.Format32bppArgb
-        );
-
-        GL.TexImage2D(
-            TextureTarget.Texture2D,
-            0,
-            PixelInternalFormat.Rgba,
-            data.Width,
-            data.Height,
-            0,
-            OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-            PixelType.UnsignedByte,
-            data.Scan0
+            PixelFormat.Format32bppArgb
         );
 
         textImage.UnlockBits(data);
-
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        var texture = new Texture();
+        texture.Create(graphic.GL, textImage);
 
         // Render texture
         double w = textSize.Width / graphic.ScreenSize.Width * graphic.Projection.Width;
         double h = textSize.Height /*/ graphic.ScreenSize.Height * graphic.Projection.Height*/;
 
-        GL.Enable(EnableCap.Texture2D);
-        GL.BindTexture(TextureTarget.Texture2D, textureId);
-        GL.Color3(Color.White);
-        GL.Begin(PrimitiveType.Quads);
+        graphic.GL.Enable(OpenGL.GL_TEXTURE_2D);
+        graphic.GL.BindTexture(OpenGL.GL_TEXTURE_2D, texture.TextureName);
+        graphic.GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);
+        graphic.GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
+        graphic.GL.Color(1f, 1f, 1f);
+        graphic.GL.Begin(OpenGL.GL_QUADS);
 
         if (orientation == TextOrientation.Horizontal)
         {
-            GL.TexCoord2(0, 1); GL.Vertex2(xLeft, yBottom);
-            GL.TexCoord2(1, 1); GL.Vertex2(xLeft + w, yBottom);
-            GL.TexCoord2(1, 0); GL.Vertex2(xLeft + w, yBottom + h);
-            GL.TexCoord2(0, 0); GL.Vertex2(xLeft, yBottom + h);
+            graphic.GL.TexCoord(0, 1); graphic.GL.Vertex(xLeft, yBottom);
+            graphic.GL.TexCoord(1, 1); graphic.GL.Vertex(xLeft + w, yBottom);
+            graphic.GL.TexCoord(1, 0); graphic.GL.Vertex(xLeft + w, yBottom + h);
+            graphic.GL.TexCoord(0, 0); graphic.GL.Vertex(xLeft, yBottom + h);
         }
         else
         {
-            GL.TexCoord2(0, 0); GL.Vertex2(xLeft, yBottom);
-            GL.TexCoord2(1, 0); GL.Vertex2(xLeft + w, yBottom);
-            GL.TexCoord2(1, 1); GL.Vertex2(xLeft + w, yBottom + h);
-            GL.TexCoord2(0, 1); GL.Vertex2(xLeft, yBottom + h);
+            graphic.GL.TexCoord(0, 0); graphic.GL.Vertex(xLeft, yBottom);
+            graphic.GL.TexCoord(1, 0); graphic.GL.Vertex(xLeft + w, yBottom);
+            graphic.GL.TexCoord(1, 1); graphic.GL.Vertex(xLeft + w, yBottom + h);
+            graphic.GL.TexCoord(0, 1); graphic.GL.Vertex(xLeft, yBottom + h);
         }
 
-        GL.End();
+        graphic.GL.End();
     }
 }
