@@ -6,10 +6,14 @@
         xmlns:glControl="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         mc:Ignorable="d"
         Title="SharpPlot"
-        Width="600" Height="300">
+        Width="600" Height="300"
+        SizeChanged="MainWindow_OnSizeChanged">
     <Grid x:Name="MainGrid">
         <glControl:OpenGLControl Name="GlControl"
+                                 RenderTrigger="Manual"
+                                 RenderContextType="FBO"
                                  OpenGLDraw="OnRender"
-                                 MouseWheel="OnMouseWheel"/>
+                                 MouseWheel="OnMouseWheel"
+                                 SizeChanged="GlControl_OnSizeChanged"/>
     </Grid>
 </Window>

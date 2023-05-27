@@ -27,7 +27,7 @@ public class BaseGraphic : IBaseGraphic
         {
             Indent.Horizontal,
             Indent.Vertical,
-            newScreenSize.Width,
+            newScreenSize.Width - Indent.Horizontal,
             newScreenSize.Height - Indent.Vertical
         };
     }

@@ -20,9 +20,6 @@ public class AxesViewer : IViewable
     public void Draw(IBaseGraphic graphic)
     {
         DrawHorizontalAxis(graphic);
-
-        var newVp = graphic.GetNewViewPort(graphic.ScreenSize);
-        graphic.GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
     }
 
     private double CalculateStep(IBaseGraphic graphic)
