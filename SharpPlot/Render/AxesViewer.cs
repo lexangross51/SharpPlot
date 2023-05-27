@@ -21,8 +21,8 @@ public class AxesViewer : IViewable
     {
         DrawHorizontalAxis(graphic);
 
-        var newVp = graphic.GetNewViewPort(graphic.ScreenSize);
-        GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
+        //var newVp = graphic.GetNewViewPort(graphic.ScreenSize);
+        //GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
     }
 
     private double CalculateStep(IBaseGraphic graphic)

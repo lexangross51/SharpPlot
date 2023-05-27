@@ -23,7 +23,7 @@ public partial class MainWindow
         {
             MajorVersion = 2,
             MinorVersion = 1,
-            //RenderContinuously = false,
+            RenderContinuously = false,
         });
 
         _axesViewer = new AxesViewer();
@@ -34,24 +34,17 @@ public partial class MainWindow
             new Indent(textMes.Height, textMes.Height));
     }
 
-    public void Render()
+    private void Render()
     {
         GL.ClearColor(Color.White);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-        GL.MatrixMode(MatrixMode.Projection);
-        GL.LoadIdentity();
+
         GL.MatrixMode(MatrixMode.Modelview);
         GL.LoadIdentity();
         GL.Viewport(0, 0, (int)Width, (int)Height);
         GL.Ortho(-1, 1, -1, 1, -1, 1);
 
-        GL.Color3(Color.Black);
-        GL.Begin(PrimitiveType.Lines);
-        GL.Vertex2(-1, -0.8);
-        GL.Vertex2(1, -0.8);
-        GL.End();
-
-        //_axesViewer.Draw(_graphic);
+        _axesViewer.Draw(_graphic);
     }
 
     private void OpenTkControl_OnRender(TimeSpan obj)
@@ -73,5 +66,12 @@ public partial class MainWindow
         GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
         _graphic.UpdateViewMatrix();
         OpenTkControl.InvalidateVisual();
+    }
+
+    private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        Width = e.NewSize.Width;
+        Height = e.NewSize.Height;
+        OpenTkControl_OnSizeChanged(sender, e);
     }
 }

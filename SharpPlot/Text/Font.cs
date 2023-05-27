@@ -14,7 +14,7 @@ public struct SharpPlotFont
         FontFamily = "Times New Roman";
         Size = 10;
         Color = Color.Black;
-        Style = FontStyle.Regular;
+        Style = FontStyle.Bold;
     }
 
     public Font MakeFont() => new(System.Drawing.FontFamily.GenericMonospace, Size, Style);

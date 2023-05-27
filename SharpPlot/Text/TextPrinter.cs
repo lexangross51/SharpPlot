@@ -84,5 +84,7 @@ public static class TextPrinter
         }
 
         GL.End();
+        GL.Disable(EnableCap.Texture2D);
+        textImage.Dispose();
     }
 }

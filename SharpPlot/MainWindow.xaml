@@ -7,9 +7,11 @@
         mc:Ignorable="d"
         Title="MainWindow"
         Width="600"
-        Height="300">
+        Height="300"
+        SizeChanged="MainWindow_OnSizeChanged">
     <Grid>
         <wpf:GLWpfControl
+
             x:Name="OpenTkControl"
             Render="OpenTkControl_OnRender"
             MouseWheel="OpenTkControl_OnMouseWheel"
