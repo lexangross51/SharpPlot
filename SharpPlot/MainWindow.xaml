@@ -3,17 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:glControl="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
         mc:Ignorable="d"
         Title="SharpPlot"
-        Width="600" Height="300"
+        Width="1200" Height="800"
         SizeChanged="MainWindow_OnSizeChanged">
-    <Grid x:Name="MainGrid">
-        <glControl:OpenGLControl Name="GlControl"
-                                 RenderTrigger="Manual"
-                                 RenderContextType="FBO"
-                                 OpenGLDraw="OnRender"
-                                 MouseWheel="OnMouseWheel"
-                                 SizeChanged="GlControl_OnSizeChanged"/>
-    </Grid>
+    <Grid x:Name="MainGrid"/>
 </Window>

@@ -30,12 +30,15 @@ public static class TextPrinter
         {
             graphics.Clear(Color.White);
             graphics.DrawString(text.Text, text.Font.MakeFont(), new SolidBrush(text.Font.Color), new PointF(0, 0));
-
+            
             if (orientation == TextOrientation.Vertical)
             {
                 textImage.RotateFlip(RotateFlipType.Rotate90FlipX);
             }
         }
+        
+        double w = textImage.Width / graphic.ScreenSize.Width * graphic.Projection.Width;
+        double h = textImage.Height / graphic.ScreenSize.Height * graphic.Projection.Height;
 
         BitmapData data = textImage.LockBits(
             new Rectangle(0, 0, textImage.Width, textImage.Height),
@@ -44,9 +47,6 @@ public static class TextPrinter
         );
 
         // Render texture
-        double w = textSize.Width / graphic.ScreenSize.Width * graphic.Projection.Width;
-        double h = textSize.Height /*/ graphic.ScreenSize.Height * graphic.Projection.Height*/;
-
         _texture ??= new Texture();
         _texture.Create(graphic.GL);
         graphic.GL.BindTexture(OpenGL.GL_TEXTURE_2D, _texture.TextureName);

@@ -52,64 +52,56 @@ public class OrthographicProjection : IProjection
         };
     }
 
-    public Point FromProjectionToWorld(Point point, ScreenSize screenSize, Indent indent)
+    public void FromProjectionToWorld(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY)
     {
-        Point converted = new();
-
-        if (point.X < indent.Horizontal)
-        {
-            converted.X = HorizontalCenter - DHorizontal;
-        }
-        else if (point.X > screenSize.Width + indent.Horizontal)
-        {
-            converted.X = HorizontalCenter + DHorizontal;
-        }
-        else
-        {
-            double coefficient = (point.X - indent.Horizontal) / screenSize.Width;
-            converted.X = HorizontalCenter + (2 * coefficient - 1) * DHorizontal;
-        }
-
-        if (point.Y < 0.0)
-        {
-            converted.Y = VerticalCenter + DVertical;
-        }
-        else if (point.Y > screenSize.Height)
-        {
-            converted.Y = VerticalCenter - DVertical;
-        }
-        else
-        {
-            double coefficient = (screenSize.Height - point.Y) / screenSize.Height;
-            converted.Y = VerticalCenter + (2 * coefficient - 1) * DVertical;
-        }
-
-        return converted;
-    }
-
-    public Point FromWorldToProjection(Point point, ScreenSize screenSize, Indent indent)
-    {
-        Point converted = new();
-
-        double dx = point.X - (HorizontalCenter - DHorizontal);
-        double dy = point.Y - (VerticalCenter - DVertical);
+        double dx = x - (HorizontalCenter - DHorizontal);
+        double dy = y - (VerticalCenter - DVertical);
 
         double coefficient = dx / Width;
-        converted.X = (coefficient * screenSize.Width + indent.Horizontal);
+        resX = coefficient * screenSize.Width + indent.Horizontal;
 
         coefficient = dy / Height;
-        converted.Y = screenSize.Height - coefficient * screenSize.Height;
-
-        return converted;
+        resY = screenSize.Height - coefficient * screenSize.Height;
     }
 
-    public void Scale(Point pivot, double delta)
+    public void FromWorldToProjection(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY)
+    {
+        if (x < indent.Horizontal)
+        {
+            resX = HorizontalCenter - DHorizontal;
+        }
+        else if (x > screenSize.Width + indent.Horizontal)
+        {
+            resX = HorizontalCenter + DHorizontal;
+        }
+        else
+        {
+            double coefficient = (x - indent.Horizontal) / screenSize.Width;
+            resX = HorizontalCenter + (2 * coefficient - 1) * DHorizontal;
+        }
+
+        if (y < 0.0)
+        {
+            resY = VerticalCenter + DVertical;
+        }
+        else if (y > screenSize.Height)
+        {
+            resY = VerticalCenter - DVertical;
+        }
+        else
+        {
+            double coefficient = (screenSize.Height - y) / screenSize.Height;
+            resY = VerticalCenter + (2 * coefficient - 1) * DVertical;
+        }
+    }
+
+    public void Scale(double x, double y, double delta)
     {
         double scale = delta < 1.05 ? 1.05 : 1.0 / 1.05;
-        double left = pivot.X + scale * (HorizontalCenter - DHorizontal - pivot.X);
-        double right = pivot.X + scale * (HorizontalCenter - DHorizontal + 2.0 * DHorizontal - pivot.X);
-        double bottom = pivot.Y + scale * (VerticalCenter - DVertical - pivot.Y);
-        double top = pivot.Y + scale * (VerticalCenter - DVertical + 2.0 * DVertical - pivot.Y);
+        double left = x + scale * (HorizontalCenter - DHorizontal - x);
+        double right = x + scale * (HorizontalCenter - DHorizontal + 2.0 * DHorizontal - x);
+        double bottom = y + scale * (VerticalCenter - DVertical - y);
+        double top = y + scale * (VerticalCenter - DVertical + 2.0 * DVertical - y);
         double newCenterX = (left + right) / 2.0;
         double newCenterY = (bottom + top) / 2.0;
         double newDHorizontal = newCenterX - left;

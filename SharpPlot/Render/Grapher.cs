@@ -21,14 +21,18 @@ public class BaseGraphic : IBaseGraphic
 
     public double[] GetNewViewPort(ScreenSize newScreenSize)
     {
-        ScreenSize = newScreenSize;
+        ScreenSize = new ScreenSize
+        {
+            Width = newScreenSize.Width - Indent.Horizontal, 
+            Height = newScreenSize.Height - Indent.Vertical
+        };
 
         return new[]
         {
             Indent.Horizontal,
             Indent.Vertical,
-            newScreenSize.Width - Indent.Horizontal,
-            newScreenSize.Height - Indent.Vertical
+            ScreenSize.Width,
+            ScreenSize.Height
         };
     }
 
@@ -36,11 +40,10 @@ public class BaseGraphic : IBaseGraphic
     {
         Projection.RationHeightToWidth = ScreenSize.Height / ScreenSize.Width;
         Projection.GetProjection(out var projection);
-        var newVp = GetNewViewPort(ScreenSize);
-        
+
         GL.MatrixMode(MatrixMode.Projection);
         GL.LoadIdentity();
-        GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
+        GL.Viewport((int)Indent.Horizontal, (int)Indent.Vertical, (int)ScreenSize.Width, (int)ScreenSize.Height);
         GL.Ortho(projection[0], projection[1], projection[2], projection[3], -1, 1);
         GL.MatrixMode(MatrixMode.Modelview);
         GL.LoadIdentity();

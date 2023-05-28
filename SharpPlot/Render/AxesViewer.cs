@@ -1,34 +1,41 @@
 ﻿using System;
 using System.Drawing;
+using System.Globalization;
 using SharpGL;
 using SharpGL.Enumerations;
 using SharpPlot.Objects.Axes;
 using SharpPlot.Text;
+using SharpPlot.Viewport;
 
 namespace SharpPlot.Render;
 
 public class AxesViewer : IViewable
 {
+    private readonly double[] _multipliers = { 1, 2, 5, 10 };
     private readonly Axis _horizontalAxis;
-    //private readonly Axis _verticalAxis;
+    private readonly Axis _verticalAxis;
 
     public AxesViewer()
     {
-        _horizontalAxis = new HorizontalAxis();
+        _horizontalAxis = new Axis("X");
+        _verticalAxis = new Axis("Y");
     }
 
     public void Draw(IBaseGraphic graphic)
     {
         DrawHorizontalAxis(graphic);
+        DrawVerticalAxis(graphic);
+        graphic.GL.Viewport((int)graphic.Indent.Horizontal, (int)graphic.Indent.Vertical, 
+            (int)graphic.ScreenSize.Width, (int)graphic.ScreenSize.Height);
+        DrawGrid(graphic);
     }
 
-    private double CalculateStep(IBaseGraphic graphic)
+    private double CalculateStepHorizontal(IBaseGraphic graphic)
     {
-        double[] multipliers = { 1, 2, 5, 10 };
         graphic.Projection.GetProjection(out var projection);
 
         double dH = projection[1] - projection[0];
-        double hh = graphic.ScreenSize.Width - graphic.Indent.Horizontal;
+        double hh = graphic.ScreenSize.Width;
 
         double fontSize = TextPrinter.TextMeasure(Axis.TemplateCaption.Text, _horizontalAxis.AxisName.Font).Width * dH / hh;
         double dTiles = Math.Floor(dH / fontSize);
@@ -37,19 +44,42 @@ public class AxesViewer : IViewable
         double dMul = Math.Pow(10, Math.Floor(Math.Log10(dStep)));
 
         int i;
-        for (i = 1; i < multipliers.Length - 1; ++i)
+        for (i = 1; i < _multipliers.Length - 1; ++i)
         {
-            if (dMul * multipliers[i] > dStep) break;
+            if (dMul * _multipliers[i] > dStep) break;
         }
 
-        dStep = multipliers[i] * dMul;
+        dStep = _multipliers[i] * dMul;
+        return dStep;
+    }
+
+    private double CalculateStepVertical(IBaseGraphic graphic)
+    {
+        graphic.Projection.GetProjection(out var projection);
+
+        double dH = projection[3] - projection[2];
+        double hh = graphic.ScreenSize.Height;
+
+        double fontSize = TextPrinter.TextMeasure(Axis.TemplateCaption.Text, _horizontalAxis.AxisName.Font).Width * dH / hh;
+        double dTiles = Math.Floor(dH / fontSize);
+
+        double dStep = dH / dTiles;
+        double dMul = Math.Pow(10, Math.Floor(Math.Log10(dStep)));
+
+        int i;
+        for (i = 1; i < _multipliers.Length - 1; ++i)
+        {
+            if (dMul * _multipliers[i] > dStep) break;
+        }
+
+        dStep = _multipliers[i] * dMul;
         return dStep;
     }
 
     private void DrawHorizontalAxis(IBaseGraphic graphic)
     {
         graphic.Projection.GetProjection(out var projection);
-        double step = CalculateStep(graphic);
+        double step = CalculateStepHorizontal(graphic);
         _horizontalAxis.GeneratePoints(projection[0], projection[1], step);
 
         var textWidth = _horizontalAxis.AxisName.Size.Width;
@@ -57,7 +87,8 @@ public class AxesViewer : IViewable
             ? TextPrinter.TextMeasure("0", _horizontalAxis.AxisName.Font).Height
             : TextPrinter.TextMeasure(_horizontalAxis.AxisName.Text, _horizontalAxis.AxisName.Font).Height;
 
-        double hRatio = (projection[1] - projection[0]) / (graphic.ScreenSize.Width - graphic.Indent.Horizontal);
+        double hRatio = (projection[1] - projection[0]) / graphic.ScreenSize.Width;
+        double vRatio = (projection[3] - projection[2]) / graphic.ScreenSize.Height;
 
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.PushMatrix();
@@ -65,35 +96,19 @@ public class AxesViewer : IViewable
         graphic.GL.PushMatrix();
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.LoadIdentity();
-        graphic.GL.Viewport((int)graphic.Indent.Horizontal, 0, (int)(graphic.ScreenSize.Width - graphic.Indent.Horizontal), (int)graphic.ScreenSize.Height);
-        graphic.GL.Ortho(projection[0], projection[1], 0, graphic.ScreenSize.Height, -1, 1);
+        graphic.GL.Viewport((int)graphic.Indent.Horizontal, 0, 
+            (int)graphic.ScreenSize.Width, (int)(graphic.ScreenSize.Height + graphic.Indent.Vertical));
+        graphic.GL.Ortho(projection[0], projection[1], projection[2], projection[3], -1, 1);
         graphic.GL.MatrixMode(MatrixMode.Modelview);
         graphic.GL.LoadIdentity();
-
-        double minDrawLetter = projection[0] + graphic.Indent.Horizontal * hRatio;
+        
+        double minDrawLetter = projection[0];
         double maxDrawLetter = projection[1] - textWidth * hRatio;
-        int lastIndex = -1;
 
-        int i = 0;
         foreach (var it in _horizontalAxis.Points)
         {
-            if (it < projection[0])
-            {
-                i++;
-                continue;
-            }
-
             double fVal = it * graphic.Projection.Scaling;
-
-            if (lastIndex != -1 && fVal - _horizontalAxis.Points[lastIndex] < 0)
-            {
-                i++;
-                continue;
-            }
-
-            lastIndex = i;
-
-            var msVal = $"{fVal:G10}";
+            var msVal = fVal.ToString("G10", CultureInfo.InvariantCulture);
             var stringSize = TextPrinter.TextMeasure(msVal, _horizontalAxis.AxisName.Font).Width;
             var stringPositionL = fVal - stringSize * 0.5 * hRatio;
             var stringPositionR = fVal + stringSize * 0.5 * hRatio;
@@ -105,44 +120,129 @@ public class AxesViewer : IViewable
                 tmpFont.Color = Math.Abs(fVal) < 1E-15 ? Color.Red : Color.Black;
                 caption.Font = tmpFont;
 
-                TextPrinter.DrawText(graphic, caption, stringPositionL, 0);
+                TextPrinter.DrawText(graphic, caption, stringPositionL, projection[2]);
             }
-            i++;
         }
-
-        TextPrinter.DrawText(graphic, new Caption() { Text = "123" }, 0.0, 100);
+        
         graphic.GL.Color(0f, 0f, 0f);
         graphic.GL.Begin(OpenGL.GL_LINES);
 
-        double dy = 4.0;
+        double dy = 8.0;
         foreach (var it in _horizontalAxis.Points)
         {
-            //GL.Vertex2(it, graphic.Indent.Vertical + heightText - 1);
-            //GL.Vertex2(it, graphic.Indent.Vertical + heightText + dy);
-            graphic.GL.Vertex(it, heightText - 2);
-            graphic.GL.Vertex(it, heightText + dy);
+            graphic.GL.Vertex(it, projection[2] + (heightText + dy) * vRatio);
+            graphic.GL.Vertex(it, projection[2] + heightText * vRatio);
         }
 
         graphic.GL.End();
 
-        graphic.GL.Color(0f, 0f, 0f);
-        graphic.GL.Begin(OpenGL.GL_LINES);
-        graphic.GL.Vertex(projection[0], heightText + 1);
-        graphic.GL.Vertex(projection[1], heightText + 1);
-        graphic.GL.End();
-        graphic.GL.MatrixMode(MatrixMode.Projection);
-        graphic.GL.LoadIdentity();
-
-        graphic.GL.Ortho(0, graphic.ScreenSize.Width, 0, graphic.ScreenSize.Height, -1, 1);
-        graphic.GL.MatrixMode(MatrixMode.Modelview);
-        graphic.GL.LoadIdentity();
-        graphic.GL.Color(0f, 0f, 1f);
-        //font.PrintText(ClientWidth - font.GetWidthCaption, indentV, 0, orth.HorAxisName);
+        if (textWidth != 0)
+        {
+            var color = _horizontalAxis.AxisName.Font.Color;
+            graphic.GL.Color(color.R, color.G, color.B);
+            TextPrinter.DrawText(graphic, _horizontalAxis.AxisName, projection[1] - textWidth * hRatio, projection[2]);
+        }
         
         graphic.GL.LoadIdentity();
         graphic.GL.PopMatrix();
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.PopMatrix();
         graphic.GL.MatrixMode(MatrixMode.Modelview);
+    }
+
+    private void DrawVerticalAxis(IBaseGraphic graphic)
+    {
+        graphic.Projection.GetProjection(out var projection);
+        double step = CalculateStepVertical(graphic);
+        _verticalAxis.GeneratePoints(projection[2], projection[3], step);
+
+        var textWidth = _verticalAxis.AxisName.Size.Width;
+        int heightText = _verticalAxis.AxisName.Text == ""
+            ? TextPrinter.TextMeasure("0", _verticalAxis.AxisName.Font).Height
+            : TextPrinter.TextMeasure(_verticalAxis.AxisName.Text, _verticalAxis.AxisName.Font).Height;
+
+        double hRatio = (projection[1] - projection[0]) / graphic.ScreenSize.Width;
+        double vRatio = (projection[3] - projection[2]) / graphic.ScreenSize.Height;
+
+        graphic.GL.MatrixMode(MatrixMode.Projection);
+        graphic.GL.PushMatrix();
+        graphic.GL.LoadIdentity();
+
+        graphic.GL.Viewport(0, (int)graphic.Indent.Vertical,
+            (int)(graphic.ScreenSize.Width + graphic.Indent.Horizontal), (int)graphic.ScreenSize.Height);
+        graphic.GL.Ortho(projection[0], projection[1], projection[2], projection[3], -1, 1);
+
+        graphic.GL.MatrixMode(MatrixMode.Modelview);
+        graphic.GL.PushMatrix();
+        graphic.GL.LoadIdentity();
+        
+        double minDrawLetter = projection[2];
+        double maxDrawLetter = projection[3] - textWidth * vRatio;
+
+        foreach (var it in _verticalAxis.Points)
+        {
+            double fVal = it * graphic.Projection.Scaling;
+            var msVal = fVal.ToString("G10", CultureInfo.InvariantCulture);
+            var stringSize = TextPrinter.TextMeasure(msVal, _horizontalAxis.AxisName.Font).Width;
+            var stringPositionL = fVal - stringSize * 0.5 * vRatio;
+            var stringPositionR = fVal + stringSize * 0.5 * vRatio;
+
+            if (stringPositionL >= minDrawLetter && stringPositionR <= maxDrawLetter)
+            {
+                var caption = new Caption() { Text = msVal };
+                var tmpFont = caption.Font;
+                tmpFont.Color = Math.Abs(fVal) < 1E-15 ? Color.Red : Color.Black;
+                caption.Font = tmpFont;
+
+                TextPrinter.DrawText(graphic, caption, projection[0], stringPositionL, TextOrientation.Vertical);
+            }
+        }
+
+        double dx = 8.0;
+        graphic.GL.Color(0f, 0f, 0f);
+        graphic.GL.Begin(OpenGL.GL_LINES);
+        
+        foreach (var it in _verticalAxis.Points)
+        {
+            graphic.GL.Vertex(projection[0] + heightText * hRatio, it);
+            graphic.GL.Vertex(projection[0] + (heightText + dx) * hRatio, it);
+        }
+
+        graphic.GL.End();
+
+        if (textWidth != 0)
+        {
+            var color = _verticalAxis.AxisName.Font.Color;
+            graphic.GL.Color(color.R, color.G, color.B);
+            TextPrinter.DrawText(graphic, _verticalAxis.AxisName, projection[0], projection[3] - textWidth * vRatio, TextOrientation.Vertical);
+        }
+
+        graphic.GL.PopMatrix();
+        graphic.GL.MatrixMode(MatrixMode.Projection);
+        graphic.GL.PopMatrix();
+        graphic.GL.MatrixMode(MatrixMode.Modelview);
+    }
+
+    private void DrawGrid(IBaseGraphic graphic)
+    {
+        graphic.Projection.GetProjection(out var projection);
+        
+        graphic.GL.Color(0.7f, 0.7f, 0.7f);
+        graphic.GL.LineWidth(1);
+        graphic.GL.Begin(OpenGL.GL_LINES);
+
+        foreach (var it in _horizontalAxis.Points)
+        {
+            graphic.GL.Vertex(it, projection[2]);
+            graphic.GL.Vertex(it, projection[3]);
+        }
+
+        foreach (var it in _verticalAxis.Points)
+        {
+            graphic.GL.Vertex(projection[0], it);
+            graphic.GL.Vertex(projection[1], it);
+        }
+
+        graphic.GL.End();
     }
 }

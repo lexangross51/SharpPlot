@@ -31,9 +31,9 @@ public interface IProjection
     double ZBuffer { get; set; }
     void SetProjection(double[] projection);
     void GetProjection(out double[] projection);
-    Point FromProjectionToWorld(Point point, ScreenSize screenSize, Indent indent);
-    Point FromWorldToProjection(Point point, ScreenSize screenSize, Indent indent);
-    void Scale(Point pivot, double delta);
+    void FromProjectionToWorld(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY);
+    void FromWorldToProjection(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY);
+    void Scale(double x, double y, double delta);
     void Translate(double h, double v);
     void Reset();
 }
