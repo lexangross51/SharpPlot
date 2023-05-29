@@ -16,6 +16,6 @@
                            MouseLeftButtonDown="OnMouseDown"
                            MouseUp="OnMouseUp"
                            MouseWheel="OnMouseWheel"
-                           SizeChanged="OnRenderSizeChanged"/>
+                           Resized="OnResized"/>
     </Grid>
 </UserControl>

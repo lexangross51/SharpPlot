@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="SharpPlot"
-        Width="1200" Height="800"
+        Width="1400" Height="800"
         SizeChanged="MainWindow_OnSizeChanged">
     <Grid x:Name="MainGrid"/>
 </Window>

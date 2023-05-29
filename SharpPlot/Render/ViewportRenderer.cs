@@ -5,17 +5,16 @@ using SharpGL;
 using SharpGL.Enumerations;
 using SharpPlot.Objects.Axes;
 using SharpPlot.Text;
-using SharpPlot.Viewport;
 
 namespace SharpPlot.Render;
 
-public class AxesViewer : IViewable
+public class ViewportRenderer : IViewable
 {
     private readonly double[] _multipliers = { 1, 2, 5, 10 };
     private readonly Axis _horizontalAxis;
     private readonly Axis _verticalAxis;
 
-    public AxesViewer()
+    public ViewportRenderer()
     {
         _horizontalAxis = new Axis("X");
         _verticalAxis = new Axis("Y");
@@ -28,6 +27,7 @@ public class AxesViewer : IViewable
         graphic.GL.Viewport((int)graphic.Indent.Horizontal, (int)graphic.Indent.Vertical, 
             (int)graphic.ScreenSize.Width, (int)graphic.ScreenSize.Height);
         DrawGrid(graphic);
+        DrawBorders(graphic);
     }
 
     private double CalculateStepHorizontal(IBaseGraphic graphic)
@@ -223,6 +223,36 @@ public class AxesViewer : IViewable
         graphic.GL.MatrixMode(MatrixMode.Modelview);
     }
 
+    private void DrawBorders(IBaseGraphic graphic)
+    {
+        graphic.GL.MatrixMode(MatrixMode.Projection);
+        graphic.GL.PushMatrix();
+        graphic.GL.MatrixMode(MatrixMode.Modelview);
+        graphic.GL.PushMatrix();
+        graphic.GL.MatrixMode(MatrixMode.Projection);
+        graphic.GL.LoadIdentity();
+        graphic.GL.Viewport((int)graphic.Indent.Horizontal - 1, (int)graphic.Indent.Vertical - 1, 
+            (int)graphic.ScreenSize.Width + 1, (int)graphic.ScreenSize.Height + 1);
+        graphic.GL.Ortho(-1, graphic.ScreenSize.Width, -1, graphic.ScreenSize.Height, -1, 1);
+        graphic.GL.MatrixMode(MatrixMode.Modelview);
+        graphic.GL.LoadIdentity();
+        
+        graphic.GL.Color(0f, 0f, 0f);
+        graphic.GL.Begin(OpenGL.GL_LINE_LOOP);
+        graphic.GL.Vertex(0, 0);
+        graphic.GL.Vertex(graphic.ScreenSize.Width, 0);
+        graphic.GL.Vertex(graphic.ScreenSize.Width, graphic.ScreenSize.Height);
+        graphic.GL.Vertex(0, graphic.ScreenSize.Height);
+        graphic.GL.End();
+        
+        graphic.GL.PopMatrix();
+        graphic.GL.MatrixMode(MatrixMode.Projection);
+        graphic.GL.PopMatrix();
+        graphic.GL.MatrixMode(MatrixMode.Modelview);
+        graphic.GL.Viewport((int)graphic.Indent.Horizontal, (int)graphic.Indent.Vertical, 
+            (int)graphic.ScreenSize.Width, (int)graphic.ScreenSize.Height);
+    }
+    
     private void DrawGrid(IBaseGraphic graphic)
     {
         graphic.Projection.GetProjection(out var projection);
