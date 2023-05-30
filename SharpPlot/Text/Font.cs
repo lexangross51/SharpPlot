@@ -11,11 +11,11 @@ public struct SharpPlotFont
 
     public SharpPlotFont()
     {
-        FontFamily = "Times New Roman";
-        Size = 10;
+        FontFamily = "Calibri";
+        Size = 20;
         Color = Color.Black;
         Style = FontStyle.Regular;
     }
 
-    public Font MakeFont() => new(System.Drawing.FontFamily.GenericSansSerif, Size, Style);
+    public Font MakeFont() => new(FontFamily, Size, Style);
 }

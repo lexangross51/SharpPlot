@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using SharpGL;
 using SharpGL.Enumerations;
 using SharpGL.WPF;
@@ -12,12 +11,12 @@ namespace SharpPlot.GraphicControl;
 
 public partial class GlControl
 {
-    private readonly ViewportRenderer _viewportRenderer;
+    private readonly IViewable _viewportRenderer;
     private readonly IBaseGraphic _graphic;
     private OpenGL _glContext;
     private bool _isMouseDown;
     private double _mouseXPrevious, _mouseYPrevious;
-
+    
     public GlControl(double width, double height)
     {
         InitializeComponent();
@@ -34,9 +33,8 @@ public partial class GlControl
         _graphic = new BaseGraphic(
             GraphicControl.OpenGL,
             new ScreenSize(clientWidth, clientHeight), 
-            new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, clientHeight / clientWidth, false),
+            new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, clientHeight / clientWidth), 
             indent);
-        
     }
 
     private void OnRender(object sender, OpenGLRoutedEventArgs args)
@@ -44,15 +42,21 @@ public partial class GlControl
         _glContext = _graphic.GL;
         _glContext.ClearColor(1f, 1f, 1f, 1f);
         _glContext.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
+        _glContext.MatrixMode(MatrixMode.Modelview);
+        _glContext.LoadIdentity();
 
         _viewportRenderer.Draw(_graphic);
 
-        _glContext.Color(1f, 0f, 0f);
-        _glContext.Begin(OpenGL.GL_TRIANGLES);
-        _glContext.Vertex(0, 0);
-        _glContext.Vertex(2, 1);
-        _glContext.Vertex(1, 3);
-        _glContext.End();
+        // _glContext.Begin(OpenGL.GL_TRIANGLES);
+        // _glContext.Color(1f, 0f, 0f);
+        // _glContext.Vertex(0, 0);
+        // _glContext.Color(1f, 1f, 0f);
+        // _glContext.Vertex(2, 1);
+        // _glContext.Color(0f, 1f, 1f);
+        // _glContext.Vertex(1, 3);
+        // _glContext.End();
+        //
+        // TextPrinter.DrawText(_graphic,  new Caption {Text = "Suka"}, 0, 0);
         _glContext.Finish();
     }
 
@@ -63,12 +67,6 @@ public partial class GlControl
         _graphic.Projection.Scale(x, y, e.Delta);
         _graphic.UpdateViewMatrix();
         GraphicControl.DoRender();
-    }
-    
-    private void OnMainSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        Width = e.NewSize.Width;
-        Height = e.NewSize.Height;
     }
 
     private void OnMouseMove(object sender, MouseEventArgs e)
@@ -106,10 +104,18 @@ public partial class GlControl
     }
 
     private void OnResized(object sender, OpenGLRoutedEventArgs args)
+        => GraphicControl.DoRender();
+
+    public void OnChangeSize(ScreenSize newSize)
     {
-        // var newVp = _graphic.GetNewViewPort(new ScreenSize(Width, Height));
-        // // _graphic.GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
-        // // _graphic.UpdateViewMatrix();
+        Width = newSize.Width;
+        Height = newSize.Height;
+        
+        _glContext.SetDimensions((int)Width, (int)Height);
+
+        var newVp = _graphic.GetNewViewPort(newSize);
+        _graphic.GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
+        _graphic.UpdateViewMatrix();
         GraphicControl.DoRender();
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows;
 
 namespace SharpPlot.Viewport;
 
@@ -18,7 +17,7 @@ public class OrthographicProjection : IProjection
     public double Height { get; private set; }
     public double ZBuffer { get; set; }
 
-    public OrthographicProjection(double[] orthographic, double ratio, bool isEqualScale)
+    public OrthographicProjection(double[] orthographic, double ratio, bool isEqualScale = false)
     {
         SetProjection(orthographic);
 
@@ -61,7 +60,7 @@ public class OrthographicProjection : IProjection
         resX = coefficient * screenSize.Width + indent.Horizontal;
 
         coefficient = dy / Height;
-        resY = screenSize.Height - coefficient * screenSize.Height;
+        resY = coefficient * screenSize.Height + indent.Vertical;
     }
 
     public void FromWorldToProjection(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY)

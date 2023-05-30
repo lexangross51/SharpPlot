@@ -19,7 +19,7 @@ public class Axis
             Text = name,
             Font = new SharpPlotFont()
             {
-                Color = Color.Blue,
+                Color = Color.Black,
             }
         };
     }

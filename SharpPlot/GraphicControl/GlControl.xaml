@@ -5,8 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:wpf="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
              mc:Ignorable="d"
-             d:DesignHeight="150" d:DesignWidth="300"
-             SizeChanged="OnMainSizeChanged">
+             d:DesignHeight="150" d:DesignWidth="300">
     <Grid>
         <wpf:OpenGLControl x:Name="GraphicControl"
                            RenderContextType="FBO"

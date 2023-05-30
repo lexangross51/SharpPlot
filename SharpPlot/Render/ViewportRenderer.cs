@@ -13,7 +13,7 @@ public class ViewportRenderer : IViewable
     private readonly double[] _multipliers = { 1, 2, 5, 10 };
     private readonly Axis _horizontalAxis;
     private readonly Axis _verticalAxis;
-
+    
     public ViewportRenderer()
     {
         _horizontalAxis = new Axis("X");
@@ -92,16 +92,14 @@ public class ViewportRenderer : IViewable
 
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.PushMatrix();
-        graphic.GL.MatrixMode(MatrixMode.Modelview);
-        graphic.GL.PushMatrix();
-        graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.LoadIdentity();
         graphic.GL.Viewport((int)graphic.Indent.Horizontal, 0, 
             (int)graphic.ScreenSize.Width, (int)(graphic.ScreenSize.Height + graphic.Indent.Vertical));
-        graphic.GL.Ortho(projection[0], projection[1], projection[2], projection[3], -1, 1);
+        graphic.GL.Ortho(projection[0], projection[1], projection[2], projection[3], -1, 1);        
         graphic.GL.MatrixMode(MatrixMode.Modelview);
+        graphic.GL.PushMatrix();
         graphic.GL.LoadIdentity();
-        
+
         double minDrawLetter = projection[0];
         double maxDrawLetter = projection[1] - textWidth * hRatio;
 
@@ -119,7 +117,7 @@ public class ViewportRenderer : IViewable
                 var tmpFont = caption.Font;
                 tmpFont.Color = Math.Abs(fVal) < 1E-15 ? Color.Red : Color.Black;
                 caption.Font = tmpFont;
-
+                
                 TextPrinter.DrawText(graphic, caption, stringPositionL, projection[2]);
             }
         }
@@ -143,7 +141,6 @@ public class ViewportRenderer : IViewable
             TextPrinter.DrawText(graphic, _horizontalAxis.AxisName, projection[1] - textWidth * hRatio, projection[2]);
         }
         
-        graphic.GL.LoadIdentity();
         graphic.GL.PopMatrix();
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.PopMatrix();
@@ -193,7 +190,7 @@ public class ViewportRenderer : IViewable
                 var tmpFont = caption.Font;
                 tmpFont.Color = Math.Abs(fVal) < 1E-15 ? Color.Red : Color.Black;
                 caption.Font = tmpFont;
-
+                
                 TextPrinter.DrawText(graphic, caption, projection[0], stringPositionL, TextOrientation.Vertical);
             }
         }
@@ -227,14 +224,12 @@ public class ViewportRenderer : IViewable
     {
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.PushMatrix();
-        graphic.GL.MatrixMode(MatrixMode.Modelview);
-        graphic.GL.PushMatrix();
-        graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.LoadIdentity();
         graphic.GL.Viewport((int)graphic.Indent.Horizontal - 1, (int)graphic.Indent.Vertical - 1, 
             (int)graphic.ScreenSize.Width + 1, (int)graphic.ScreenSize.Height + 1);
         graphic.GL.Ortho(-1, graphic.ScreenSize.Width, -1, graphic.ScreenSize.Height, -1, 1);
         graphic.GL.MatrixMode(MatrixMode.Modelview);
+        graphic.GL.PushMatrix();
         graphic.GL.LoadIdentity();
         
         graphic.GL.Color(0f, 0f, 0f);
@@ -249,8 +244,6 @@ public class ViewportRenderer : IViewable
         graphic.GL.MatrixMode(MatrixMode.Projection);
         graphic.GL.PopMatrix();
         graphic.GL.MatrixMode(MatrixMode.Modelview);
-        graphic.GL.Viewport((int)graphic.Indent.Horizontal, (int)graphic.Indent.Vertical, 
-            (int)graphic.ScreenSize.Width, (int)graphic.ScreenSize.Height);
     }
     
     private void DrawGrid(IBaseGraphic graphic)

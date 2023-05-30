@@ -11,7 +11,6 @@ public interface IBaseGraphic
     IProjection Projection { get; set; }
     double[] GetNewViewPort(ScreenSize newScreenSize);
     void UpdateViewMatrix();
-
 }
 
 public interface IViewable
