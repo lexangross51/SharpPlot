@@ -1,27 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using SharpPlot.Text;
 
 namespace SharpPlot.Objects.Axes;
 
 public class Axis
 {
-    public static readonly Caption TemplateCaption = new() { Text = "00e+00" };
+    public const string TemplateCaption = "00e+00";
     public List<double> Points { get; set; }
-    public Caption AxisName { get; set; }
+    public string AxisName { get; set; }
 
     public Axis(string name = "")
     {
         Points = new List<double>();
-        AxisName = new Caption()
-        {
-            Text = name,
-            Font = new SharpPlotFont()
-            {
-                Color = Color.Black,
-            }
-        };
+        AxisName = name;
     }
 
     public void GeneratePoints(double start, double end, double step, double scale = 1.0)

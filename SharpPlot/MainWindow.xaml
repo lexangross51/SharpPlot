@@ -5,7 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="SharpPlot"
-        Width="1400" Height="800"
+        MinWidth="1000" MinHeight="601"
+        x:Name="MainForm"
         SizeChanged="MainWindow_OnSizeChanged">
-    <Grid x:Name="MainGrid"/>
+
+    <DockPanel>
+        <ToolBar DockPanel.Dock="Top" Height="25">
+            <Button x:Name="PlotterSettings" Content="Plotter" Click="PlotterOnClick"/>
+        </ToolBar>
+        <Grid x:Name="MainGrid"/>
+    </DockPanel>
 </Window>

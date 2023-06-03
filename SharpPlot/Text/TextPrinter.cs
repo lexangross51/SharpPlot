@@ -22,10 +22,10 @@ public static class TextPrinter
     public static Size TextMeasure(string text, SharpPlotFont font)
         => TextRenderer.MeasureText(text, font.MakeFont());
 
-    public static void DrawText(IBaseGraphic graphic, Caption text, double xLeft, double yBottom,
+    public static void DrawText(IBaseGraphic graphic, string text, double x, double y, SharpPlotFont font, 
         TextOrientation orientation = TextOrientation.Horizontal)
     {
-        var textSize = text.Size;
+        var textSize = TextMeasure(text, font);
         Bitmap textImage = new(textSize.Width, textSize.Height);
 
         // Build texture
@@ -34,7 +34,7 @@ public static class TextPrinter
             graphics.Clear(Color.Transparent);
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-            graphics.DrawString(text.Text, text.Font.MakeFont(), new SolidBrush(text.Font.Color), new PointF(0, 0));
+            graphics.DrawString(text, font.MakeFont(), new SolidBrush(font.Color), new PointF(0, 0));
 
             if (orientation == TextOrientation.Vertical)
             {
@@ -77,24 +77,24 @@ public static class TextPrinter
         if (orientation == TextOrientation.Horizontal)
         {
             graphic.GL.TexCoord(0, 1);
-            graphic.GL.Vertex(xLeft, yBottom);
+            graphic.GL.Vertex(x, y);
             graphic.GL.TexCoord(1, 1);
-            graphic.GL.Vertex(xLeft + w, yBottom);
+            graphic.GL.Vertex(x + w, y);
             graphic.GL.TexCoord(1, 0);
-            graphic.GL.Vertex(xLeft + w, yBottom + h);
+            graphic.GL.Vertex(x + w, y + h);
             graphic.GL.TexCoord(0, 0);
-            graphic.GL.Vertex(xLeft, yBottom + h);
+            graphic.GL.Vertex(x, y + h);
         }
         else
         {
             graphic.GL.TexCoord(0, 0);
-            graphic.GL.Vertex(xLeft, yBottom);
+            graphic.GL.Vertex(x, y);
             graphic.GL.TexCoord(1, 0);
-            graphic.GL.Vertex(xLeft + w, yBottom);
+            graphic.GL.Vertex(x + w, y);
             graphic.GL.TexCoord(1, 1);
-            graphic.GL.Vertex(xLeft + w, yBottom + h);
+            graphic.GL.Vertex(x + w, y + h);
             graphic.GL.TexCoord(0, 1);
-            graphic.GL.Vertex(xLeft, yBottom + h);
+            graphic.GL.Vertex(x, y + h);
         }
 
         graphic.GL.End();

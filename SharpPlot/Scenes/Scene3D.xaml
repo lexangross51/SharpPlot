@@ -1,20 +1,16 @@
-﻿<UserControl x:Class="SharpPlot.GraphicControl.GlControl"
+﻿<UserControl x:Class="SharpPlot.Scenes.Scene3D"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:wpf="clr-namespace:SharpGL.WPF;assembly=SharpGL.WPF"
              mc:Ignorable="d"
-             d:DesignHeight="150" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="600">
     <Grid>
-        <wpf:OpenGLControl x:Name="GraphicControl"
+        <wpf:OpenGLControl x:Name="GraphicControl3D"
                            RenderContextType="FBO"
                            RenderTrigger="Manual"
                            OpenGLDraw="OnRender"
-                           MouseMove="OnMouseMove"
-                           MouseLeftButtonDown="OnMouseDown"
-                           MouseUp="OnMouseUp"
-                           MouseWheel="OnMouseWheel"
                            Resized="OnResized"/>
     </Grid>
 </UserControl>

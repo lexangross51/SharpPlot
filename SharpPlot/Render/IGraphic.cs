@@ -1,4 +1,6 @@
-﻿using SharpGL;
+﻿using System.Collections.Generic;
+using SharpGL;
+using SharpPlot.Objects;
 using SharpPlot.Viewport;
 
 namespace SharpPlot.Render;
@@ -13,7 +15,9 @@ public interface IBaseGraphic
     void UpdateViewMatrix();
 }
 
-public interface IViewable
+public interface IRenderer
 {
-    void Draw(IBaseGraphic graph);
+    IBaseGraphic BaseGraphic { get; set; }
+    void AppendRenderable(IBaseObject obj);
+    void Draw();
 }

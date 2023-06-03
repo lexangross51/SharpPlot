@@ -1,6 +1,4 @@
-﻿using System.Windows;
-
-namespace SharpPlot.Viewport;
+﻿namespace SharpPlot.Viewport;
 
 public struct ScreenSize
 {
@@ -27,7 +25,7 @@ public interface IProjection
     double Width { get; }
     double Height { get; }
     double Scaling { get; set; }
-    double RationHeightToWidth { get; set; }
+    double Ratio { get; set; }
     double ZBuffer { get; set; }
     void SetProjection(double[] projection);
     void GetProjection(out double[] projection);

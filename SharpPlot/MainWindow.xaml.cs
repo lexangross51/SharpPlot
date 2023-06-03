@@ -1,65 +1,76 @@
-﻿using System.Collections.Generic;
+﻿using System.Drawing;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using SharpPlot.GraphicControl;
-using SharpPlot.Viewport;
+using SharpPlot.Objects;
 
 namespace SharpPlot;
 
-public partial class MainWindow
+public sealed partial class MainWindow
 {
-    private readonly List<GlControl> _controls;
+    public Plotter Plotter { get; }
 
-    public static double FigureWidth { get; set; } = 1000;
-    public static double FigureHeight { get; set; } = 600;
-    public static int RowsCount { get; set; } = 1;
-    public static int ColumnsCount { get; set; } = 1;
-    
     public MainWindow()
     {
+        DataContext = this;
         InitializeComponent();
 
-        Width = FigureWidth;
-        Height = FigureHeight;
+        Plotter = Plotter.Figure(Width - 25.0, Height - 25.0);
+        PrepareMainForm();
 
-        _controls = new List<GlControl>();
+        var args = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
+        var values = args.Select(arg => arg % 2 == 0 ? arg / 2.0 : arg + 1).ToArray();
+        
+        Plotter.Plot(args, values, Color.Black);
+        Plotter.Scatter(args, values, Color.Red);
+    }
 
-        var controlWidth = Width / ColumnsCount - 4 * 20;
-        var controlHeight = Height / RowsCount - 4 * 20;
+    private void PrepareMainForm()
+    {
+        MainGrid.RowDefinitions.Clear();
+        MainGrid.ColumnDefinitions.Clear();
+        MainGrid.Children.Clear();
 
-        for (int i = 0; i < RowsCount; i++)
+        for (int i = 0; i < Plotter.RowsCount; i++)
         {
             MainGrid.RowDefinitions.Add(new RowDefinition {Height = new GridLength(1, GridUnitType.Star)});
         }
         
-        for (int i = 0; i < ColumnsCount; i++)
+        for (int i = 0; i < Plotter.ColumnsCount; i++)
         {
             MainGrid.ColumnDefinitions.Add(new ColumnDefinition {Width = new GridLength(1, GridUnitType.Star)});
         }
         
-        for (int row = 0; row < RowsCount; row++)
+        for (int row = 0, index = 0; row < Plotter.RowsCount; row++)
         {
-            for (int column = 0; column < ColumnsCount; column++)
+            for (int column = 0; column < Plotter.ColumnsCount; column++)
             {
-                var control = new GlControl(controlWidth, controlHeight);
+                Grid.SetRow(Plotter.Scenes2D[index], row);
+                Grid.SetColumn(Plotter.Scenes2D[index], column);
 
-                Grid.SetRow(control, row);
-                Grid.SetColumn(control, column);
-
-                MainGrid.Children.Add(control);
-                _controls.Add(control);
+                MainGrid.Children.Add(Plotter.Scenes2D[index]);
+                index++;
             }
         }
     }
     
     private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        var controlWidth = e.NewSize.Width / ColumnsCount - 4 * 20;
-        var controlHeight = e.NewSize.Height / RowsCount - 4 * 20;
+        Plotter.ResizeAll(e.NewSize.Width - 25.0, e.NewSize.Height - 25.0);
+    }
+
+    private void PlotterOnClick(object sender, RoutedEventArgs e)
+    {
+        PlotterSettings plotterSettings = new();
+        plotterSettings.ShowDialog();
         
-        foreach (var control in _controls)
+        if ((bool)plotterSettings.DialogResult!)
         {
-            control.OnChangeSize(new ScreenSize(controlWidth, controlHeight));
+            if (Plotter.NeedToRebuild)
+            {
+                Plotter.Make2DScenes();
+                PrepareMainForm();
+            }
         }
     }
 }

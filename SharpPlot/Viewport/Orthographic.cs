@@ -8,8 +8,8 @@ public class OrthographicProjection : IProjection
     private double _oldHorizontalCenter, _oldVerticalCenter;
     private double _oldWidth, _oldHeight;
     private double DHorizontal => Width / 2.0;
-    private double DVertical => _isEqualScale ? DHorizontal * RationHeightToWidth : Height / 2.0;
-    public double RationHeightToWidth { get; set; }
+    private double DVertical => _isEqualScale ? DHorizontal * Ratio : Height / 2.0;
+    public double Ratio { get; set; }
     public double HorizontalCenter { get; set; }
     public double VerticalCenter { get; set; }
     public double Scaling { get; set; }
@@ -21,7 +21,7 @@ public class OrthographicProjection : IProjection
     {
         SetProjection(orthographic);
 
-        RationHeightToWidth = ratio;
+        Ratio = ratio;
         _isEqualScale = isEqualScale;
         Scaling = 1;
     }
@@ -47,7 +47,7 @@ public class OrthographicProjection : IProjection
             HorizontalCenter + DHorizontal,
             VerticalCenter - DVertical,
             VerticalCenter + DVertical,
-            0.0, 0.0
+            -1.0, 1.0
         };
     }
 
