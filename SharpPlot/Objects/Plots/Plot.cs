@@ -1,27 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Point = System.Windows.Point;
+using System.Windows.Media;
+using SharpGL;
+using SharpGL.Enumerations;
+using SharpPlot.Render;
+using System.Windows;
 
 namespace SharpPlot.Objects.Plots;
 
-public class Plot : IBaseObject
+public class Plot : IRenderable
 {
     public PrimitiveType Type { get; set; } = PrimitiveType.LineStrip;
     public int PointSize { get; set; } = 1;
     public List<Point> Points { get; set; }
-    public List<int>? VertexIndices { get; set; }
     public List<Color> Colors { get; set; }
     
-    public (Point LeftBottom, Point RightTop) BoundingBox()
+    public void BoundingBox(out Point? leftBottom, out Point? rightTop)
     {
         var minX = Points.MinBy(p => p.X).X;
         var maxX = Points.MaxBy(p => p.X).X;
         var minY = Points.MinBy(p => p.Y).Y;
         var maxY = Points.MaxBy(p => p.Y).Y;
 
-        return (new Point(minX, minY), new Point(maxX, maxY));
+        leftBottom = new Point(minX, minY);
+        rightTop = new Point(maxX, maxY);
     }
 
     public Plot(IEnumerable<double> args, IEnumerable<double> values, Color color)
@@ -29,15 +31,29 @@ public class Plot : IBaseObject
         var argsArray = args as double[] ?? args.ToArray();
         var valuesArray = values as double[] ?? values.ToArray();
         
-        if (argsArray.Length != valuesArray.Length) throw new Exception("Arrays must be the same size");
-
         Points = new List<Point>(argsArray.Length);
-        Colors = new List<Color>(argsArray.Length);
+        Colors = new List<Color>(1) { color };
 
         for (int i = 0; i < argsArray.Length; i++)
         {
             Points.Add(new Point(argsArray[i], valuesArray[i]));
-            Colors.Add(color);
         }
+    }
+    
+    public void Render(IBaseGraphic graphic)
+    {
+        graphic.GL.PointSize(PointSize);
+        graphic.GL.Enable(OpenGL.GL_POINT_SMOOTH);
+        graphic.GL.Color(Colors[0].R, Colors[0].G, Colors[0].B, Colors[0].A);
+        graphic.GL.Begin((BeginMode)Type);
+
+        foreach (var point in Points)
+        {
+            graphic.GL.Vertex(point.X, point.Y);
+        }
+        
+        graphic.GL.End();
+        graphic.GL.Disable(OpenGL.GL_POINT_SMOOTH);
+        graphic.GL.PointSize(1);
     }
 }

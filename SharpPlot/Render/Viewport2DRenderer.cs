@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using SharpGL;
@@ -18,8 +17,7 @@ public class Viewport2DRenderer : IRenderer
     public Axis VerticalAxis { get; }
     public SharpPlotFont Font { get; set; }
     public IBaseGraphic BaseGraphic { get; set; }
-    private List<IBaseObject> _renderableObjects;
-    
+
     public Viewport2DRenderer(IBaseGraphic graphic)
     {
         HorizontalAxis = new Axis("X");
@@ -28,17 +26,15 @@ public class Viewport2DRenderer : IRenderer
         {
             Color = Color.Black
         };
-
-        _renderableObjects = new List<IBaseObject>(2);
+        
         BaseGraphic = graphic;
     }
 
-    public void AppendRenderable(IBaseObject obj)
+    public void AppendRenderable(IRenderable obj)
     {
-        
     }
 
-    public void Draw()
+    public void DrawObjects()
     {
         DrawHorizontalAxis();
         DrawVerticalAxis();
@@ -48,6 +44,7 @@ public class Viewport2DRenderer : IRenderer
         if (DrawingGrid) DrawGrid();
         
         DrawBorders();
+        BaseGraphic.UpdateViewMatrix();
     }
 
     private double CalculateStepHorizontal()
@@ -243,20 +240,23 @@ public class Viewport2DRenderer : IRenderer
         BaseGraphic.GL.MatrixMode(MatrixMode.Projection);
         BaseGraphic.GL.PushMatrix();
         BaseGraphic.GL.LoadIdentity();
-        BaseGraphic.GL.Viewport((int)BaseGraphic.Indent.Horizontal - 1, (int)BaseGraphic.Indent.Vertical - 1, 
-            (int)BaseGraphic.ScreenSize.Width + 1, (int)BaseGraphic.ScreenSize.Height + 1);
-        BaseGraphic.GL.Ortho(-1, BaseGraphic.ScreenSize.Width, -1, BaseGraphic.ScreenSize.Height, -1, 1);
+        BaseGraphic.GL.Viewport((int)BaseGraphic.Indent.Horizontal - 2, (int)BaseGraphic.Indent.Vertical - 2, 
+            (int)BaseGraphic.ScreenSize.Width + 4, (int)BaseGraphic.ScreenSize.Height + 4);
+        BaseGraphic.GL.Ortho(BaseGraphic.Indent.Horizontal - 1, BaseGraphic.ScreenSize.Width + 1, 
+            BaseGraphic.Indent.Vertical - 1, BaseGraphic.ScreenSize.Height + 1, -1, 1);
         BaseGraphic.GL.MatrixMode(MatrixMode.Modelview);
         BaseGraphic.GL.PushMatrix();
         BaseGraphic.GL.LoadIdentity();
         
+        BaseGraphic.GL.LineWidth(2);
         BaseGraphic.GL.Color(0f, 0f, 0f);
         BaseGraphic.GL.Begin(OpenGL.GL_LINE_LOOP);
-        BaseGraphic.GL.Vertex(0, 0);
-        BaseGraphic.GL.Vertex(BaseGraphic.ScreenSize.Width, 0);
+        BaseGraphic.GL.Vertex(BaseGraphic.Indent.Horizontal, BaseGraphic.Indent.Vertical);
+        BaseGraphic.GL.Vertex(BaseGraphic.ScreenSize.Width, BaseGraphic.Indent.Vertical);
         BaseGraphic.GL.Vertex(BaseGraphic.ScreenSize.Width, BaseGraphic.ScreenSize.Height);
-        BaseGraphic.GL.Vertex(0, BaseGraphic.ScreenSize.Height);
+        BaseGraphic.GL.Vertex(BaseGraphic.Indent.Horizontal, BaseGraphic.ScreenSize.Height);
         BaseGraphic.GL.End();
+        BaseGraphic.GL.LineWidth(1);
         
         BaseGraphic.GL.PopMatrix();
         BaseGraphic.GL.MatrixMode(MatrixMode.Projection);

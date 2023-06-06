@@ -25,9 +25,9 @@ public partial class Scene2D
         Height = height;
         
         var textMes = TextPrinter.TextMeasure("0", new SharpPlotFont());
-        var indent = new Indent(textMes.Height + 8, textMes.Height + 8);
-        var clientWidth = Width - indent.Horizontal;
-        var clientHeight = Height - indent.Vertical;
+        var indent = new Indent(textMes.Height + 10, textMes.Height + 10);
+        var clientWidth = Width - indent.Horizontal - 2;
+        var clientHeight = Height - indent.Vertical - 2;
         
         _graphic = new BaseGraphic2D(
             GraphicControl2D.OpenGL,
@@ -45,11 +45,9 @@ public partial class Scene2D
         gl.MakeCurrent();
         gl.ClearColor(1f, 1f, 1f, 1f);
         gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-        gl.MatrixMode(MatrixMode.Modelview);
-        gl.LoadIdentity();
 
-        _viewportRenderer.Draw();
-        ObjectsRenderer.Draw();
+        _viewportRenderer.DrawObjects();
+        ObjectsRenderer.DrawObjects();
 
         gl.Finish();
     }
@@ -104,9 +102,8 @@ public partial class Scene2D
         Width = newSize.Width;
         Height = newSize.Height;
         
-        _graphic.GL.SetDimensions((int)Width, (int)Height);
-
         var newVp = _graphic.GetNewViewPort(newSize);
+        _graphic.GL.SetDimensions((int)newVp[2], (int)newVp[3]);
         _graphic.GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
         _graphic.UpdateViewMatrix();
         GraphicControl2D.DoRender();

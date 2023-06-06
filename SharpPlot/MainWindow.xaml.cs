@@ -1,5 +1,6 @@
-﻿using System.Drawing;
-using System.Linq;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using SharpPlot.Objects;
@@ -18,13 +19,54 @@ public sealed partial class MainWindow
         Plotter = Plotter.Figure(Width - 25.0, Height - 25.0);
         PrepareMainForm();
 
-        var args = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
-        var values = args.Select(arg => arg % 2 == 0 ? arg / 2.0 : arg + 1).ToArray();
+        // var args = new double[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
+        // var values = args.Select(arg => arg % 2 == 0 ? arg / 2.0 : arg + 1).ToArray();
+
+        var points = new List<Point>();
+        var values = new List<double>();
+        var indices = new List<int>();
+        ReadMeshValues("ViscosityField.txt", points, values);
+        //ReadIndices("indices.txt", indices);
         
-        Plotter.Plot(args, values, Color.Black);
-        Plotter.Scatter(args, values, Color.Red);
+        // Plotter.Plot(args, values, Color.Black);
+        // Plotter.Scatter(args, values, Color.Red);
+        //Plotter.ColorMesh(points, values, PaletteType.Rainbow, ColorInterpolation.Linear);
+        Plotter.ContourF(points, values, PaletteType.AutumnReverse, 20);
+        //Plotter.Contour(points, values, 10);
+        Plotter.Colorbar(new Colorbar(values, Palette.Create(PaletteType.AutumnReverse)));
     }
 
+    private void ReadMeshValues(string filename, ICollection<Point> points, ICollection<double> values)
+    {
+        using var sr = new StreamReader(filename);
+
+        while (sr.ReadLine() is { } line)
+        {
+            var nums = line.Split("\t");
+            var x = double.Parse(nums[0], CultureInfo.InvariantCulture);
+            var y = double.Parse(nums[1], CultureInfo.InvariantCulture);
+            var v = double.Parse(nums[2], CultureInfo.InvariantCulture);
+            
+            points.Add(new Point(x, y));
+            values.Add(v);
+        }
+    }
+
+    private void ReadIndices(string filename, ICollection<int> indices)
+    {
+        using var sr = new StreamReader(filename);
+
+        while (sr.ReadLine() is { } line)
+        {
+            var nums = line.Split(" ");
+
+            foreach (var num in nums)
+            {
+                indices.Add(int.Parse(num));
+            }
+        }
+    }
+    
     private void PrepareMainForm()
     {
         MainGrid.RowDefinitions.Clear();
@@ -61,7 +103,10 @@ public sealed partial class MainWindow
 
     private void PlotterOnClick(object sender, RoutedEventArgs e)
     {
-        PlotterSettings plotterSettings = new();
+        PlotterSettings plotterSettings = new()
+        {
+            DataContext = this
+        };
         plotterSettings.ShowDialog();
         
         if ((bool)plotterSettings.DialogResult!)
@@ -70,6 +115,7 @@ public sealed partial class MainWindow
             {
                 Plotter.Make2DScenes();
                 PrepareMainForm();
+                InvalidateVisual();
             }
         }
     }

@@ -37,7 +37,7 @@ public partial class Scene3D
         gl.LoadIdentity();
         gl.Rotate(Math.PI / 2.0, 1.0, 0.0, 0.0);
         
-        _viewportRenderer.Draw();
+        _viewportRenderer.DrawObjects();
         _graphic.UpdateViewMatrix();
         
         gl.Finish();

@@ -23,8 +23,8 @@ public class BaseGraphic2D : IBaseGraphic
     {
         ScreenSize = new ScreenSize
         {
-            Width = newScreenSize.Width - Indent.Horizontal, 
-            Height = newScreenSize.Height - Indent.Vertical
+            Width = newScreenSize.Width - Indent.Horizontal - 2, 
+            Height = newScreenSize.Height - Indent.Vertical - 2
         };
 
         return new[]

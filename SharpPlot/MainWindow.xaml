@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="SharpPlot"
-        MinWidth="1000" MinHeight="601"
+        MinWidth="600" MinHeight="600"
+        Width="600" Height="600"
         x:Name="MainForm"
         SizeChanged="MainWindow_OnSizeChanged">
 

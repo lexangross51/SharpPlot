@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using SharpGL;
+﻿using SharpGL;
 using SharpPlot.Objects;
 using SharpPlot.Viewport;
 
@@ -18,6 +17,6 @@ public interface IBaseGraphic
 public interface IRenderer
 {
     IBaseGraphic BaseGraphic { get; set; }
-    void AppendRenderable(IBaseObject obj);
-    void Draw();
+    void AppendRenderable(IRenderable obj);
+    void DrawObjects();
 }

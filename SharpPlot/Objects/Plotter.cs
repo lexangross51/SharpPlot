@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using SharpPlot.Objects.Plots;
 using SharpPlot.Scenes;
 using SharpPlot.Viewport;
+using System.Windows.Media;
+using Point = System.Windows.Point;
 
 namespace SharpPlot.Objects;
 
@@ -60,14 +61,14 @@ public sealed class Plotter : INotifyPropertyChanged
     public bool NeedToRebuild { get; private set; }
     public GraphType GraphType { get; set; } = GraphType.G2D;
 
-    public Plotter()
+    private Plotter()
     {
         Scenes2D = new List<Scene2D>();
     }
 
     public static Plotter Figure(double width = 1000.0, double height = 600.0)
     {
-        var plotter = new Plotter()
+        var plotter = new Plotter
         {
             Width = width,
             Height = height
@@ -130,13 +131,40 @@ public sealed class Plotter : INotifyPropertyChanged
         Scenes2D[0].ObjectsRenderer.AppendRenderable(new Scatter(args, values, color, size));
     }
 
-    public void ColorMesh()
+    public void ColorMesh(IEnumerable<Point> points, IEnumerable<double> values, PaletteType palette, 
+        ColorInterpolation interpolation = ColorInterpolation.Constant)
     {
-        
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new ColorMesh(points, values, palette, interpolation));
     }
 
-    public void ContourF()
+    public void ColorMesh(IEnumerable<Point> points, IEnumerable<double> values, IEnumerable<int> indices,
+        PaletteType palette, ColorInterpolation interpolation = ColorInterpolation.Constant)
     {
-        
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new ColorMesh(points, indices, values, palette, interpolation));
+    }
+    
+    public void Mesh(IEnumerable<Point> points)
+    {
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new Mesh(points));
+    }
+    
+    public void Mesh(IEnumerable<Point> points, IEnumerable<int> indices)
+    {
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new Mesh(points, indices));
+    }
+    
+    public void ContourF(IEnumerable<Point> points, IEnumerable<double> values, PaletteType palette, int levels)
+    {
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new ContourF(points, values, palette, levels));
+    }
+    
+    public void Contour(IEnumerable<Point> points, IEnumerable<double> values, int levels)
+    {
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new Contour(points, values, levels));
+    }
+
+    public void Colorbar(Colorbar cb)
+    {
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(cb);
     }
 }
