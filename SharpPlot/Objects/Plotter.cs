@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using SharpPlot.Objects.Plots;
 using SharpPlot.Scenes;
@@ -153,9 +154,39 @@ public sealed class Plotter : INotifyPropertyChanged
         Scenes2D[0].ObjectsRenderer.AppendRenderable(new Mesh(points, indices));
     }
     
-    public void ContourF(IEnumerable<Point> points, IEnumerable<double> values, PaletteType palette, int levels)
+    public Colorbar ContourF(IEnumerable<Point> points, IEnumerable<double> values, Palette palette, int levels)
     {
-        Scenes2D[0].ObjectsRenderer.AppendRenderable(new ContourF(points, values, palette, levels));
+        var valuesArray = values as double[] ?? values.ToArray();
+        Scenes2D[0].ObjectsRenderer.AppendRenderable(new ContourF(points, valuesArray, palette, levels));
+        
+        var maxValue = valuesArray.Max();
+        var minValue = valuesArray.Min();
+        var levelsStep = (maxValue - minValue) / (levels + 1);
+        var valueStep = (maxValue - minValue) / palette.ColorsCount;
+        var valuesByPalette = new double[palette.ColorsCount + 1];
+        var valuesByIsolines = new double[levels + 2];
+        
+        for (int i = 0; i < levels + 2; i++)
+        {
+            valuesByIsolines[i] = minValue + i * levelsStep;
+        }
+
+        for (int i = 0; i < palette.ColorsCount + 1; i++)
+        {
+            valuesByPalette[i] = minValue + i * valueStep;
+        }
+
+        var newPalette = new Palette(levels + 1);
+        for (int i = 0; i < levels + 1; i++)
+        {
+            var lower = minValue + i * levelsStep;
+            var upper = minValue + (i + 1) * levelsStep;
+            var interpolated = ColorInterpolator.InterpolateColor(valuesByPalette, (lower + upper) / 2.0, palette,
+                ColorInterpolation.Linear);
+            newPalette.AddColor(interpolated);
+        }
+
+        return new Colorbar(valuesArray, newPalette, ColorInterpolation.Constant);
     }
     
     public void Contour(IEnumerable<Point> points, IEnumerable<double> values, int levels)

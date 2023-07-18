@@ -12,7 +12,7 @@ public struct SharpPlotFont
     public SharpPlotFont()
     {
         FontFamily = "Calibri";
-        Size = 20;
+        Size = 12;
         Color = Color.Black;
         Style = FontStyle.Regular;
     }

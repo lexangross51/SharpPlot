@@ -141,11 +141,11 @@ public class Viewport2DRenderer : IRenderer
         BaseGraphic.GL.Color(0f, 0f, 0f);
         BaseGraphic.GL.Begin(OpenGL.GL_LINES);
 
-        double dy = 8.0;
+        double dy = 6.0;
         foreach (var it in HorizontalAxis.Points)
         {
             BaseGraphic.GL.Vertex(it, projection[2] + (heightText + dy) * vRatio);
-            BaseGraphic.GL.Vertex(it, projection[2] + heightText * vRatio);
+            BaseGraphic.GL.Vertex(it, projection[2] + (heightText - 2) * vRatio);
         }
 
         BaseGraphic.GL.End();
@@ -210,7 +210,7 @@ public class Viewport2DRenderer : IRenderer
             }
         }
 
-        double dx = 8.0;
+        double dx = 7.0;
         BaseGraphic.GL.Color(0f, 0f, 0f);
         BaseGraphic.GL.Begin(OpenGL.GL_LINES);
         

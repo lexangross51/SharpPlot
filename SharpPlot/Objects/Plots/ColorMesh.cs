@@ -33,21 +33,21 @@ public class ColorMesh : IRenderable
         Points = points.ToList();
         Colors = new List<Color>();
 
-        var xPoints = Points.Select(p => p.X).Distinct().ToArray();
-        var yPoints = Points.Select(p => p.Y).Distinct().ToArray();
-        _vertexIndices = new List<int>(4 * (xPoints.Length - 1) * (yPoints.Length - 1));
+        var nx = Points.Select(p => p.X).Distinct().Count();
+        var ny = Points.Select(p => p.Y).Distinct().Count();
+        _vertexIndices = new List<int>(4 * (nx - 1) * (ny - 1));
 
-        for (int i = 0; i < yPoints.Length - 1; i++)
+        for (int i = 0; i < ny - 1; i++)
         {
-            for (int j = 0; j < xPoints.Length - 1; j++)
+            for (int j = 0; j < nx - 1; j++)
             {
-                var index = i * xPoints.Length + j;
+                var index = i * nx + j;
                 _vertexIndices.Add(index);
-                index = i * xPoints.Length + j + 1;
+                index = i * nx + j + 1;
                 _vertexIndices.Add(index);
-                index = (i + 1) * xPoints.Length + j + 1;
+                index = (i + 1) * nx + j + 1;
                 _vertexIndices.Add(index);
-                index = (i + 1) * xPoints.Length + j;
+                index = (i + 1) * nx + j;
                 _vertexIndices.Add(index);
             }
         }
@@ -87,47 +87,14 @@ public class ColorMesh : IRenderable
         for (int j = 0; j < Points.Count; j++)
         {
             var valueAtPoint = valuesArray[j];
-
-            for (int k = 0; k < valuesRanges.Length - 1; k++)
-            {
-                if (valueAtPoint <= valuesRanges[k] && valueAtPoint >= valuesRanges[k + 1])
-                {
-                    var colorStart = palette[k];
-                    var colorEnd = k == colorsCount - 1 ? palette[k] : palette[k + 1];
-                    
-                    var interpolated = InterpolateColor(
-                        valuesRanges[k],valuesRanges[k + 1], valueAtPoint,
-                        colorStart, colorEnd, interpolation); 
-                    Colors.Add(interpolated);
-                    break;
-                }
-            }
+            var interpolated = ColorInterpolator.InterpolateColor(valuesRanges, valueAtPoint, palette, interpolation);
+            Colors.Add(interpolated);
         }
 
         Colors.Add(Colors.Last());
         Colors.Add(Colors.Last());
     }
 
-    private Color InterpolateColor(double valueStart, double valueEnd, double value, Color start, Color end,
-        ColorInterpolation interpolation)
-    {
-        switch (interpolation)
-        {
-            case ColorInterpolation.Constant:
-                return start;
-            case ColorInterpolation.Linear:
-                var t = (value - valueEnd) / (valueStart - valueEnd);
-                var r = end.R + t * (start.R - end.R);
-                var g = end.G + t * (start.G - end.G);
-                var b = end.B + t * (start.B - end.B);
-                return Color.FromRgb((byte)r, (byte)g, (byte)b);
-            case ColorInterpolation.Quadratic:
-                return System.Windows.Media.Colors.Bisque;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(interpolation), interpolation, null);
-        }
-    }
-    
     public void Render(IBaseGraphic graphic)
     {
         graphic.GL.Begin((BeginMode)Type);

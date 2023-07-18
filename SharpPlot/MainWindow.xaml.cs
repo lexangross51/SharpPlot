@@ -24,16 +24,19 @@ public sealed partial class MainWindow
 
         var points = new List<Point>();
         var values = new List<double>();
-        var indices = new List<int>();
+        // var indices = new List<int>();
         ReadMeshValues("ViscosityField.txt", points, values);
-        //ReadIndices("indices.txt", indices);
+        // ReadIndices("indices.txt", indices);
         
         // Plotter.Plot(args, values, Color.Black);
         // Plotter.Scatter(args, values, Color.Red);
-        //Plotter.ColorMesh(points, values, PaletteType.Rainbow, ColorInterpolation.Linear);
-        Plotter.ContourF(points, values, PaletteType.AutumnReverse, 20);
-        //Plotter.Contour(points, values, 10);
-        Plotter.Colorbar(new Colorbar(values, Palette.Create(PaletteType.AutumnReverse)));
+       //Plotter.ColorMesh(points, values, PaletteType.AutumnReverse, ColorInterpolation.Linear);
+        // Plotter.ContourF(points, values, PaletteType.RainbowReverse, 30);
+        // Plotter.Mesh(points);
+        
+        //Plotter.ContourF(points, values, Palette.Rainbow, 20);
+        //Plotter.Contour(points, values, 7);
+        //Plotter.Colorbar(new Colorbar(values, Palette.Create(PaletteType.AutumnReverse), ColorInterpolation.Constant));
     }
 
     private void ReadMeshValues(string filename, ICollection<Point> points, ICollection<double> values)

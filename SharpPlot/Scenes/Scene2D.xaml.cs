@@ -45,7 +45,7 @@ public partial class Scene2D
         gl.MakeCurrent();
         gl.ClearColor(1f, 1f, 1f, 1f);
         gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-
+        
         _viewportRenderer.DrawObjects();
         ObjectsRenderer.DrawObjects();
 
@@ -103,7 +103,7 @@ public partial class Scene2D
         Height = newSize.Height;
         
         var newVp = _graphic.GetNewViewPort(newSize);
-        _graphic.GL.SetDimensions((int)newVp[2], (int)newVp[3]);
+        _graphic.GL.SetDimensions((int)Width, (int)Height);
         _graphic.GL.Viewport((int)newVp[0], (int)newVp[1], (int)newVp[2], (int)newVp[3]);
         _graphic.UpdateViewMatrix();
         GraphicControl2D.DoRender();
