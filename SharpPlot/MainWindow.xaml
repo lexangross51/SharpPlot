@@ -6,14 +6,13 @@
         mc:Ignorable="d"
         Title="SharpPlot"
         MinWidth="600" MinHeight="600"
-        Width="600" Height="600"
-        x:Name="MainForm"
-        SizeChanged="MainWindow_OnSizeChanged">
+        Width="1024" Height="768"
+        x:Name="MainForm">
 
     <DockPanel>
-        <ToolBar DockPanel.Dock="Top" Height="25">
-            <Button x:Name="PlotterSettings" Content="Plotter" Click="PlotterOnClick"/>
-        </ToolBar>
-        <Grid x:Name="MainGrid"/>
+        <TabControl x:Name="ScenesControl">
+            <TabItem x:Name="Graph2D" Header="Graph 2D"/>
+            <TabItem x:Name="Graph3D" Header="Graph 3D"/>
+        </TabControl>
     </DockPanel>
 </Window>

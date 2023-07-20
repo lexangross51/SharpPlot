@@ -2,8 +2,8 @@
 
 public struct ScreenSize
 {
-    public double Width { get; set; }
-    public double Height { get; set; }
+    public double Width { get; init; }
+    public double Height { get; init; }
 
     public ScreenSize(double width, double height)
         => (Width, Height) = (width, height);

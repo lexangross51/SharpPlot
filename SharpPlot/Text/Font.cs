@@ -17,5 +17,5 @@ public struct SharpPlotFont
         Style = FontStyle.Regular;
     }
 
-    public Font MakeFont() => new(FontFamily, Size, Style);
+    public Font MakeSystemFont() => new(FontFamily, Size, Style);
 }
