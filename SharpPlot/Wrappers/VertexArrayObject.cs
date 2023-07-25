@@ -21,8 +21,8 @@ public class VertexArrayObject : IBindable, IDisposable
         int stride, 
         int offset)
     {
-        GL.EnableVertexAttribArray(location);
         GL.VertexAttribPointer(location, size, type, normalize, stride, offset);
+        GL.EnableVertexAttribArray(location);
     }
     
     public void Dispose() => GL.DeleteVertexArray(_handle);

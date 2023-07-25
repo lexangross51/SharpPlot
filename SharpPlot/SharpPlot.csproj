@@ -13,4 +13,13 @@
       <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Shaders\FragmentShader.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\VertexShader.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

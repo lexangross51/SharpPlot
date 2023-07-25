@@ -7,8 +7,7 @@
              xmlns:local="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
              d:DesignHeight="300" d:DesignWidth="600">
     <Grid>
-        <local:GLWpfControl x:Name="GlControl" RenderContinuously="False"
-                            Render="OnRender"
-                            SizeChanged="OnSizeChanged"/>
+        <local:GLWpfControl x:Name="GlControl"
+                            Render="OnRender"/>
     </Grid>
 </UserControl>

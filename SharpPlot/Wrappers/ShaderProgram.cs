@@ -4,15 +4,17 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace SharpPlot.Wrappers;
 
-public class ShaderProgram : IDisposable
+public sealed class ShaderProgram : IDisposable
 {
     private readonly int _shaderProgram;
     private bool _isDisposed;
 
     public ShaderProgram(string vertexShaderPath, string fragmentShaderPath)
     {
-        int vertexShader = CompileShader(ShaderType.VertexShader, vertexShaderPath);
-        int fragmentShader = CompileShader(ShaderType.FragmentShader, fragmentShaderPath);
+        var vertexShaderSource = File.ReadAllText(vertexShaderPath);
+        var fragmentShaderSource = File.ReadAllText(fragmentShaderPath);
+        int vertexShader = CompileShader(ShaderType.VertexShader, vertexShaderSource);
+        int fragmentShader = CompileShader(ShaderType.FragmentShader, fragmentShaderSource);
 
         _shaderProgram = GL.CreateProgram();
         
@@ -40,19 +42,19 @@ public class ShaderProgram : IDisposable
     
     public int GetUniformLocation(string name) => GL.GetUniformLocation(_shaderProgram, name);
 
-    private int CompileShader(ShaderType shaderType, string shaderPath)
+    private int CompileShader(ShaderType shaderType, string shaderSource)
     {
         int id = GL.CreateShader(shaderType);
-        GL.ShaderSource(id, File.ReadAllText(shaderPath));
+        GL.ShaderSource(id, shaderSource);
         GL.CompileShader(id);
         GL.GetShader(id, ShaderParameter.CompileStatus, out var status);
 
-        if (status == 1) return id;
+        if (status == (int)All.True) return id;
 
         throw new Exception($"Shader compile error: {GL.GetShaderInfoLog(id)}");
     }
-    
-    protected virtual void Dispose(bool disposing)
+
+    private void Dispose(bool disposing)
     {
         if (_isDisposed) return;
         
