@@ -8,6 +8,9 @@
              d:DesignHeight="300" d:DesignWidth="600">
     <Grid>
         <local:GLWpfControl x:Name="GlControl"
-                            Render="OnRender"/>
+                            Render="OnRender"
+                            KeyDown="OnKeyDown"
+                            MouseMove="OnMouseMove"
+                            MouseWheel="OnMouseWheel"/>
     </Grid>
 </UserControl>

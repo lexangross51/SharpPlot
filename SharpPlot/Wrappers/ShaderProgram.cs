@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace SharpPlot.Wrappers;
 
@@ -8,6 +10,7 @@ public sealed class ShaderProgram : IDisposable
 {
     private readonly int _shaderProgram;
     private bool _isDisposed;
+    private readonly Dictionary<string, int> _uniforms;
 
     public ShaderProgram(string vertexShaderPath, string fragmentShaderPath)
     {
@@ -30,6 +33,17 @@ public sealed class ShaderProgram : IDisposable
         GL.DetachShader(_shaderProgram, fragmentShader);
         GL.DeleteShader(vertexShader);
         GL.DeleteShader(fragmentShader);
+
+        // All active uniforms
+        _uniforms = new Dictionary<string, int>();
+        GL.GetProgram(_shaderProgram, GetProgramParameterName.ActiveUniforms, out var uniformsCount);
+
+        for (int i = 0; i < uniformsCount; i++)
+        {
+            var name = GL.GetActiveUniform(_shaderProgram, i, out _, out _);
+            var location = GL.GetUniformLocation(_shaderProgram, name);
+            _uniforms.Add(name, location);
+        }
     }
     
     ~ShaderProgram()
@@ -39,9 +53,22 @@ public sealed class ShaderProgram : IDisposable
     }
 
     public void Use() => GL.UseProgram(_shaderProgram);
-    
-    public int GetUniformLocation(string name) => GL.GetUniformLocation(_shaderProgram, name);
 
+    public void GetAttribLocation(string name, out int location)
+        => location = GL.GetAttribLocation(_shaderProgram, name);
+    
+    public void GetUniformLocation(string name, out int location) 
+        => location = _uniforms[name];
+
+    public void SetUniform(int location, float r, float g, float b, float a) 
+        => GL.Uniform4(location, r, g, b, a);
+
+    public void SetUniform(string name, int value)
+        => GL.Uniform1(_uniforms[name], value);
+    
+    public void SetUniform(string name, Matrix4 matrix)
+        => GL.UniformMatrix4(_uniforms[name], true, ref matrix);
+    
     private int CompileShader(ShaderType shaderType, string shaderSource)
     {
         int id = GL.CreateShader(shaderType);

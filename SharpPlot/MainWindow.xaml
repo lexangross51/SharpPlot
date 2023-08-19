@@ -9,12 +9,18 @@
         Width="1024" Height="768"
         x:Name="MainForm">
 
-    <DockPanel>
-        <!-- <TabControl x:Name="ScenesControl"> -->
-        <!--     <TabItem x:Name="Graph2DTabItem" Header="Graph 2D"/> -->
-        <!--     <TabItem x:Name="Graph3DTabItem" Header="Graph 3D"/> -->
-        <!-- </TabControl> -->
-        
-        <local:Scene2D x:Name="Graph2D" Margin="20"/>
-    </DockPanel>
+    <Grid>
+        <local:Scene2D x:Name="Graph2D" BorderBrush="Black" BorderThickness="1" Margin="20"
+                       Width="800" Height="500"/>
+    </Grid>
+    
+    <!-- <DockPanel> -->
+    <!--     ~1~ <TabControl x:Name="ScenesControl"> @1@ -->
+    <!--     ~1~     <TabItem x:Name="Graph2DTabItem" Header="Graph 2D"/> @1@ -->
+    <!--     ~1~     <TabItem x:Name="Graph3DTabItem" Header="Graph 3D"/> @1@ -->
+    <!--     ~1~ </TabControl> @1@ -->
+    <!--      -->
+    <!--     <local:Scene2D x:Name="Graph2D" Margin="20"/> -->
+    <!--     <local:Scene2D x:Name="Graph2D1" Margin="20"/> -->
+    <!-- </DockPanel> -->
 </Window>

@@ -11,13 +11,14 @@
     <ItemGroup>
       <PackageReference Include="OpenTK" Version="4.8.0" />
       <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.3" />
+      <PackageReference Include="StbImageSharp" Version="2.27.13" />
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Shaders\FragmentShader.frag">
+      <None Update="Shaders\BaseShader.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\VertexShader.vert">
+      <None Update="Shaders\BaseShader.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
