@@ -2,16 +2,14 @@
 
 namespace SharpPlot.Render;
 
-public interface IRenderSettings
+public struct RenderSettings
 {
-    ScreenSize ScreenSize { get; set; }
-    Indent Indent { get; set; }
+    public ScreenSize ScreenSize { get; set; }
+    public Indent Indent { get; set; }
 }
 
 public interface IRenderContext
 {
-    IRenderSettings Settings { get; set; }
-
     void DrawPoints();
     void DrawLines();
     void DrawTriangles();

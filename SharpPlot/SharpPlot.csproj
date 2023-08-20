@@ -15,10 +15,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Shaders\BaseShader.frag">
+      <None Update="Shaders\LineShader.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Shaders\BaseShader.vert">
+      <None Update="Shaders\LineShader.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>

@@ -10,7 +10,7 @@
         x:Name="MainForm">
 
     <Grid>
-        <local:Scene2D x:Name="Graph2D" BorderBrush="Black" BorderThickness="1" Margin="20"
+        <local:Scene2D BorderBrush="Black" BorderThickness="1" Margin="20"
                        Width="800" Height="500"/>
     </Grid>
     

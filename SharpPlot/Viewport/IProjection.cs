@@ -1,21 +1,20 @@
-﻿namespace SharpPlot.Viewport;
+﻿using System.Drawing;
+
+namespace SharpPlot.Viewport;
 
 public struct ScreenSize
 {
+    public PointF StartPoint { get; init; }
     public double Width { get; init; }
     public double Height { get; init; }
-
-    public ScreenSize(double width, double height)
-        => (Width, Height) = (width, height);
 }
 
 public struct Indent
 {
-    public double Horizontal { get; set; }
-    public double Vertical { get; set; }
-
-    public Indent(double h, double v)
-        => (Horizontal, Vertical) = (h, v);
+    public double Left { get; set; }
+    public double Right { get; set; }
+    public double Bottom { get; set; }
+    public double Top { get; set; }
 }
 
 public interface IProjection
@@ -24,11 +23,10 @@ public interface IProjection
     double VerticalCenter { get; set; }
     double Width { get; }
     double Height { get; }
-    double Scaling { get; set; }
     double Ratio { get; set; }
     double ZBuffer { get; set; }
     void SetProjection(double[] projection);
-    void GetProjection(out double[] projection);
+    double[] GetProjection();
     void FromProjectionToWorld(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY);
     void FromWorldToProjection(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY);
     void Scale(double x, double y, double delta);
