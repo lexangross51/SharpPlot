@@ -48,26 +48,21 @@ public class BaseGraphic2D : IRenderContext
 
     public void DrawPoints()
     {
-        throw new System.NotImplementedException();
     }
 
     public void DrawLines()
     {
-        throw new System.NotImplementedException();
     }
 
     public void DrawTriangles()
     {
-        throw new System.NotImplementedException();
     }
 
     public void DrawQuadrilaterals()
     {
-        throw new System.NotImplementedException();
     }
 
     public void Clear()
     {
-        throw new System.NotImplementedException();
     }
 }
