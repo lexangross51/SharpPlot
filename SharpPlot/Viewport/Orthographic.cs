@@ -1,4 +1,5 @@
 ﻿using System;
+using SharpPlot.Render;
 
 namespace SharpPlot.Viewport;
 
@@ -52,20 +53,25 @@ public class OrthographicProjection : IProjection
         return _projection;
     }
     
-    public void FromProjectionToWorld(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY)
+    public void FromProjectionToWorld(double x, double y, RenderSettings renderSettings, out double resX, out double resY)
     {
-        double dx = x - (HorizontalCenter - DHorizontal);
-        double dy = y - (VerticalCenter - DVertical);
-
-        double coefficient = dx / Width;
-        resX = coefficient * screenSize.Width + indent.Left + indent.Right;
+        var screenSize = renderSettings.ScreenSize;
+        var indent = renderSettings.Indent;
+        
+        var dx = x - (HorizontalCenter - DHorizontal);
+        var dy = y - (VerticalCenter - DVertical);
+        var coefficient = dx / Width;
+        resX = coefficient * (screenSize.Width - indent.Left) + indent.Left + indent.Right;
 
         coefficient = dy / Height;
-        resY = coefficient * screenSize.Height + indent.Bottom + indent.Top;
+        resY = coefficient * (screenSize.Height - indent.Bottom) + indent.Bottom + indent.Top;
     }
 
-    public void FromWorldToProjection(double x, double y, ScreenSize screenSize, Indent indent, out double resX, out double resY)
+    public void FromWorldToProjection(double x, double y, RenderSettings renderSettings, out double resX, out double resY)
     {
+        var screenSize = renderSettings.ScreenSize;
+        var indent = renderSettings.Indent;
+        
         if (x < indent.Left + indent.Right)
         {
             resX = HorizontalCenter - DHorizontal;
@@ -76,7 +82,7 @@ public class OrthographicProjection : IProjection
         }
         else
         {
-            double coefficient = (x - indent.Left - indent.Right) / screenSize.Width;
+            double coefficient = (x - indent.Left - indent.Right) / (screenSize.Width - indent.Left - indent.Right);
             resX = HorizontalCenter + (2 * coefficient - 1) * DHorizontal;
         }
 
@@ -90,7 +96,7 @@ public class OrthographicProjection : IProjection
         }
         else
         {
-            double coefficient = (screenSize.Height - y) / screenSize.Height;
+            double coefficient = (screenSize.Height - indent.Bottom - y) / (screenSize.Height - indent.Bottom);
             resY = VerticalCenter + (2 * coefficient - 1) * DVertical;
         }
     }

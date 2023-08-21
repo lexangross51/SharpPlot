@@ -19,5 +19,11 @@ public class VertexBufferObject<T> : IBindable, IDisposable where T : struct
 
     public void Unbind() => GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+    public void UpdateData(T[] newData)
+    {
+        GL.BindBuffer(BufferTarget.ArrayBuffer, _handle);
+        GL.BufferSubData(BufferTarget.ArrayBuffer,0, newData.Length * Marshal.SizeOf<T>(), newData);
+    }
+
     public void Dispose() => GL.DeleteBuffer(_handle);
 }

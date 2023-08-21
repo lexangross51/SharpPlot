@@ -6,12 +6,11 @@
         xmlns:local="clr-namespace:SharpPlot.Scenes"
         mc:Ignorable="d"
         Title="SharpPlot"
-        Width="1024" Height="768"
+        Width="950" Height="500"
         x:Name="MainForm">
 
     <Grid>
-        <local:Scene2D BorderBrush="Black" BorderThickness="1" Margin="20"
-                       Width="800" Height="500"/>
+        <local:Scene2D />
     </Grid>
     
     <!-- <DockPanel> -->

@@ -10,6 +10,9 @@
         <local:GLWpfControl x:Name="GlControl"
                             Render="OnRender"
                             MouseMove="OnMouseMove"
-                            MouseWheel="OnMouseWheel"/>
+                            MouseWheel="OnMouseWheel"
+                            MouseLeftButtonDown="OnMouseLeftButtonDown"
+                            MouseLeftButtonUp="OnMouseLeftButtonUp"
+                            MouseRightButtonDown="OnMouseRightButtonDown"/>
     </Grid>
 </UserControl>

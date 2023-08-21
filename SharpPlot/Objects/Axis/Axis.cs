@@ -5,16 +5,13 @@ namespace SharpPlot.Objects.Axis;
 
 public class Axis
 {
-    private const string TemplateCaption = "00e+00";
+    public static readonly string TemplateCaption = "00e+00";
     public List<double> Points { get; }
-    public List<uint>? Indices { get; }
     public string Name { get; set; }
 
-    public Axis(string name)
+    public Axis(string name = "")
     {
         Points = new List<double>();
-        Indices = null;
-
         Name = name;
     }
 

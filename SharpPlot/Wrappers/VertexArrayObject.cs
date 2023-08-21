@@ -7,7 +7,11 @@ public class VertexArrayObject : IBindable, IDisposable
 {
     private readonly int _handle;
 
-    public VertexArrayObject() => _handle = GL.GenVertexArray();
+    public VertexArrayObject()
+    {
+        _handle = GL.GenVertexArray();
+        GL.BindVertexArray(_handle);
+    }
 
     public void Bind() => GL.BindVertexArray(_handle);
 
