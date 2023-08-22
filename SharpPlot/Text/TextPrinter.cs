@@ -1,5 +1,12 @@
 ﻿using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using SharpPlot.Render;
+using SharpPlot.Shaders;
+using SharpPlot.Wrappers;
 
 namespace SharpPlot.Text;
 
@@ -11,87 +18,93 @@ public enum TextOrientation : byte
 
 public static class TextPrinter
 {
-    //private static Texture.Texture? _texture;
+    private static readonly ShaderProgram Shader;
+    private static Texture.Texture? _texture;
+    private static Font? _font;
+    private static readonly float[] TextPosition =
+    {
+        0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
+    };
+    private static readonly uint[] Indices =
+    {
+        0, 1, 3,
+        1, 2, 3
+    };
+
+    private static readonly VertexArrayObject Vao;
+    private static readonly VertexBufferObject<float> Vbo;
+    private static readonly ElementBufferObject Ebo;
+
+    static TextPrinter()
+    {
+        Vao = new VertexArrayObject();
+        Vbo = new VertexBufferObject<float>(TextPosition, BufferUsageHint.DynamicDraw);
+        Ebo = new ElementBufferObject(Indices);
+
+        Shader = ShaderCollection.TextShader();
+        Shader.Use();
+        Shader.SetUniform("model", Matrix4.Identity);
+        Shader.SetUniform("view", Matrix4.Identity);
+        Shader.SetUniform("projection", Matrix4.Identity);
+        Shader.GetAttribLocation("position", out var position);
+        Vao.SetAttributePointer(position, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
+        Shader.GetAttribLocation("texPosition", out var texPosition);
+        Vao.SetAttributePointer(texPosition, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
+    }
 
     public static Size TextMeasure(string text, SharpPlotFont font)
         => TextRenderer.MeasureText(text, font.MakeSystemFont());
 
-    // public static void DrawText(IBaseGraphic graphic, string text, double x, double y, SharpPlotFont font, 
-    //     TextOrientation orientation = TextOrientation.Horizontal)
-    // {
-    //     var textSize = TextMeasure(text, font);
-    //     Bitmap textImage = new(textSize.Width, textSize.Height);
-    //
-    //     // Build texture
-    //     using (var graphics = Graphics.FromImage(textImage))
-    //     {
-    //         graphics.Clear(Color.Transparent);
-    //         graphics.SmoothingMode = SmoothingMode.AntiAlias;
-    //         graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-    //         graphics.DrawString(text, font.MakeFont(), new SolidBrush(font.Color), new PointF(0, 0));
-    //
-    //         if (orientation == TextOrientation.Vertical)
-    //         {
-    //             textImage.RotateFlip(RotateFlipType.Rotate90FlipX);
-    //         }
-    //     }
-    //
-    //     double w = textImage.Width / graphic.ScreenSize.Width * graphic.Projection.Width;
-    //     double h = textImage.Height / graphic.ScreenSize.Height * graphic.Projection.Height;
-    //
-    //     BitmapData data = textImage.LockBits(
-    //         new Rectangle(0, 0, textImage.Width, textImage.Height),
-    //         ImageLockMode.ReadOnly,
-    //         PixelFormat.Format32bppArgb
-    //     );
-    //
-    //     // Render texture
-    //     _texture ??= new Texture();
-    //     _texture.Create(graphic.GL);
-    //     _texture.Bind(graphic.GL);
-    //     graphic.GL.TexImage2D(OpenGL.GL_TEXTURE_2D, 0,
-    //         OpenGL.GL_RGBA,
-    //         textImage.Width, textImage.Height,
-    //         0, 32993u, 5121u, data.Scan0);
-    //     textImage.UnlockBits(data);
-    //     textImage.Dispose();
-    //
-    //     graphic.GL.GenerateMipmapEXT(OpenGL.GL_TEXTURE_2D);
-    //     graphic.GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MAG_FILTER, OpenGL.GL_LINEAR);
-    //     graphic.GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR);
-    //     graphic.GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_TEXTURE_MIN_FILTER, OpenGL.GL_LINEAR_MIPMAP_LINEAR);
-    //     graphic.GL.TexParameter(OpenGL.GL_TEXTURE_2D, OpenGL.GL_AUTO_GENERATE_MIPMAP, OpenGL.GL_TRUE);
-    //
-    //     graphic.GL.Enable(OpenGL.GL_BLEND);
-    //     graphic.GL.BlendFunc(OpenGL.GL_SRC_ALPHA, OpenGL.GL_ONE_MINUS_SRC_ALPHA);
-    //     graphic.GL.Enable(OpenGL.GL_TEXTURE_2D);
-    //     graphic.GL.Color(1f, 1f, 1f, 1f);
-    //     graphic.GL.Begin(OpenGL.GL_QUADS);
-    //
-    //     if (orientation == TextOrientation.Horizontal)
-    //     {
-    //         graphic.GL.TexCoord(0, 1);
-    //         graphic.GL.Vertex(x, y);
-    //         graphic.GL.TexCoord(1, 1);
-    //         graphic.GL.Vertex(x + w, y);
-    //         graphic.GL.TexCoord(1, 0);
-    //         graphic.GL.Vertex(x + w, y + h);
-    //         graphic.GL.TexCoord(0, 0);
-    //         graphic.GL.Vertex(x, y + h);
-    //     }
-    //     else
-    //     {
-    //         graphic.GL.TexCoord(0, 0);
-    //         graphic.GL.Vertex(x, y);
-    //         graphic.GL.TexCoord(1, 0);
-    //         graphic.GL.Vertex(x + w, y);
-    //         graphic.GL.TexCoord(1, 1);
-    //         graphic.GL.Vertex(x + w, y + h);
-    //         graphic.GL.TexCoord(0, 1);
-    //         graphic.GL.Vertex(x, y + h);
-    //     }
-    //
-    //     graphic.GL.End();
-    //     graphic.GL.Disable(OpenGL.GL_TEXTURE_2D);
-    // }
+    public static void DrawText(Viewport2DRenderer renderer, string text, double x, double y, 
+        SharpPlotFont font, TextOrientation orientation = TextOrientation.Horizontal)
+    {
+        _font ??= font.MakeSystemFont();
+        var camera = renderer.GetCamera();
+        var renderSettings = renderer.GetRenderSettings();
+        
+        var textSize = TextMeasure(text, font);
+        Bitmap textImage = new(textSize.Width, textSize.Height);
+        
+        // Build texture
+        using var graphics = Graphics.FromImage(textImage);
+        graphics.Clear(Color.Transparent);
+        graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+        graphics.DrawString(text, _font, new SolidBrush(font.Color), new PointF(0, 0));
+
+        _texture = new Texture.Texture(textImage);
+        
+        var w = textImage.Width / renderSettings.ScreenSize.Width * camera.GetProjection().Width;
+        var h = textImage.Height / renderSettings.ScreenSize.Height * camera.GetProjection().Height;
+        
+        TextPosition[0] = (float)(x + w);
+        TextPosition[1] = (float)(y + h);
+        TextPosition[5] = (float)(x + w);
+        TextPosition[6] = (float)y;
+        TextPosition[10] = (float)x;
+        TextPosition[11] = (float)y;
+        TextPosition[15] = (float)x;
+        TextPosition[16] = (float)(y + h);
+
+        Vbo.Bind();
+        Vbo.UpdateData(TextPosition);
+        GL.Enable(EnableCap.Blend);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        Vao.Bind();
+        _texture.Use();
+        Shader.Use();
+        Shader.SetUniform("projection", camera.GetProjectionMatrix());
+        
+        GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
+        
+        Vao.Unbind();
+        
+        // if (orientation == TextOrientation.Vertical)
+        // {
+        //     textImage.RotateFlip(RotateFlipType.Rotate90FlipX);
+        // }
+    }
 }

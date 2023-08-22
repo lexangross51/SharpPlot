@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SharpPlot.Camera;
@@ -61,7 +62,7 @@ public class Viewport2DRenderer
 
         Font = new SharpPlotFont
         {
-            Color = Color.Black
+            Color = Color.Black,
         };
 
         // Border settings will only be set once
@@ -116,7 +117,7 @@ public class Viewport2DRenderer
         _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
     }
 
-    public int[] GetNewViewport(ScreenSize newScreenSize)
+    private int[] GetNewViewport(ScreenSize newScreenSize)
     {
         _renderSettings.ScreenSize = newScreenSize;
 
@@ -133,7 +134,7 @@ public class Viewport2DRenderer
         var dH = end - begin;
         var hh = measure;
 
-        var fontSize = /*TextPrinter.TextMeasure(Axis.TemplateCaption, Font).Width **/ 50 * dH / hh;
+        var fontSize = TextPrinter.TextMeasure(Axis.TemplateCaption, Font).Width * dH / hh;
         var dTiles = Math.Floor(dH / fontSize);
 
         var dStep = dH / dTiles;
@@ -182,27 +183,9 @@ public class Viewport2DRenderer
         var vRatio = (projection[3] - projection[2]) /
                      (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
         
-        // var minDrawLetter = projection[0];
-        // var maxDrawLetter = projection[1] - textWidth * hRatio;
-        //
-        // foreach (var it in _horizontalAxis.Points)
-        // {
-        //     double fVal = it;
-        //     var msVal = fVal.ToString("G10", CultureInfo.InvariantCulture);
-        //     var stringSize = TextPrinter.TextMeasure(msVal, Font).Width;
-        //     var stringPositionL = fVal - stringSize * 0.5 * hRatio;
-        //     var stringPositionR = fVal + stringSize * 0.5 * hRatio;
-        //
-        //     if (stringPositionL >= minDrawLetter && stringPositionR <= maxDrawLetter)
-        //     {
-        //         var color = Math.Abs(fVal) < 1E-15 ? Color.Red : Color.Black;
-        //         var sharpPlotFont = Font;
-        //         sharpPlotFont.Color = color;
-        //         
-        //         //TextPrinter.DrawText(BaseGraphic, msVal, stringPositionL, projection[2], sharpPlotFont);
-        //     }
-        // }
-
+        var minDrawLetter = projection[0];
+        var maxDrawLetter = projection[1] - textWidth * hRatio;
+        
         const double dy = 6;
         foreach (var it in _horizontalAxis.Points)
         {
@@ -214,6 +197,9 @@ public class Viewport2DRenderer
             _points.Add(0.0f);
         }
 
+        GL.Viewport((int)_renderSettings.Indent.Left, 0,
+            (int)(_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left),
+            (int)_renderSettings.ScreenSize.Height);
         _vboTicks.Bind();
         _vboTicks.UpdateData(_points.ToArray());
         _vaoTicks.Bind();
@@ -221,13 +207,29 @@ public class Viewport2DRenderer
         _axesShader.GetUniformLocation("lineColor", out var location);
         _axesShader.SetUniform(location, 0.0f, 0.0f, 0.0f, 1.0f);
         _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
-        GL.Viewport((int)_renderSettings.Indent.Left, 0,
-            (int)(_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left),
-            (int)_renderSettings.ScreenSize.Height);
+
+        GL.LineWidth(2);
         GL.DrawArrays(PrimitiveType.Lines, 0, _points.Count / 3);
+        GL.LineWidth(1);
 
         _vboTicks.Unbind();
         _vaoTicks.Unbind();
+        
+        foreach (var it in _horizontalAxis.Points)
+        {
+            var msVal = it.ToString("G10", CultureInfo.InvariantCulture);
+            var stringSize = TextPrinter.TextMeasure(msVal, Font).Width;
+            var stringPositionL = it - stringSize * 0.5 * hRatio;
+            var stringPositionR = it + stringSize * 0.5 * hRatio;
+
+            if (stringPositionL < minDrawLetter || stringPositionR > maxDrawLetter) continue;
+            
+            var color = Math.Abs(it) < 1E-15 ? Color.Red : Color.Black;
+            var sharpPlotFont = Font;
+            sharpPlotFont.Color = color;
+
+            TextPrinter.DrawText(this, msVal, stringPositionL, projection[2], sharpPlotFont);
+        }
         
         // if (textWidth != 0)
         // {
@@ -285,7 +287,9 @@ public class Viewport2DRenderer
             _points.Add((float)it);
             _points.Add(0.0f);
         }
-
+        
+        GL.Viewport(0, (int)_renderSettings.Indent.Bottom, (int)_renderSettings.ScreenSize.Width,
+            (int)(_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom));
         _vboTicks.Bind();
         _vboTicks.UpdateData(_points.ToArray());
         _vaoTicks.Bind();
@@ -293,9 +297,10 @@ public class Viewport2DRenderer
         _axesShader.GetUniformLocation("lineColor", out var location);
         _axesShader.SetUniform(location, 0.0f, 0.0f, 0.0f, 1.0f);
         _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
-        GL.Viewport(0, (int)_renderSettings.Indent.Bottom, (int)_renderSettings.ScreenSize.Width,
-            (int)(_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom));
+
+        GL.LineWidth(2);
         GL.DrawArrays(PrimitiveType.Lines, 0, _points.Count / 3);
+        GL.LineWidth(1);
 
         _vboTicks.Unbind();
         _vaoTicks.Unbind();

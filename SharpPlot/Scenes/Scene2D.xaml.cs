@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
 using SharpPlot.Render;
+using SharpPlot.Text;
 using SharpPlot.Viewport;
 using Color = System.Drawing.Color;
 
@@ -29,6 +30,13 @@ public partial class Scene2D
         Width = 900;
         Height = 450;
 
+        var font = new SharpPlotFont
+        {
+            Color = Color.Black,
+            Size = 20
+        };
+        var indent = TextPrinter.TextMeasure("0", font).Height;
+
         var renderSettings = new RenderSettings
         {
             ScreenSize = new ScreenSize
@@ -38,16 +46,16 @@ public partial class Scene2D
             },
             Indent = new Indent()
             {
-                Left = 20,
-                Bottom = 20
+                Left = indent,
+                Bottom = indent
             }
         };
 
         var camera = new Camera2D(new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, 0.5));
 
-        _viewPortRenderer = new Viewport2DRenderer(renderSettings, camera);
+        _viewPortRenderer = new Viewport2DRenderer(renderSettings, camera) { Font = font };
 
-        GL.ClearColor(Color.White);
+        GL.ClearColor(Color.LightCyan);
     }
 
     private void OnRender(TimeSpan obj)

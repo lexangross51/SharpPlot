@@ -1,8 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Media;
-using SharpPlot.Scenes;
-
-namespace SharpPlot;
+﻿namespace SharpPlot;
 
 public sealed partial class MainWindow
 {
