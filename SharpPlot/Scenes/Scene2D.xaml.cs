@@ -33,7 +33,8 @@ public partial class Scene2D
         var font = new SharpPlotFont
         {
             Color = Color.Black,
-            Size = 20
+            Size = 14,
+            FontFamily = "Times New Roman"
         };
         var indent = TextPrinter.TextMeasure("0", font).Height;
 
@@ -44,7 +45,7 @@ public partial class Scene2D
                 Width = 900,
                 Height = 450,
             },
-            Indent = new Indent()
+            Indent = new Indent
             {
                 Left = indent,
                 Bottom = indent
@@ -55,7 +56,7 @@ public partial class Scene2D
 
         _viewPortRenderer = new Viewport2DRenderer(renderSettings, camera) { Font = font };
 
-        GL.ClearColor(Color.LightCyan);
+        GL.ClearColor(Color.White);
     }
 
     private void OnRender(TimeSpan obj)
@@ -64,6 +65,9 @@ public partial class Scene2D
         GL.Clear(ClearBufferMask.DepthBufferBit);
 
         _viewPortRenderer.RenderAxis();
+        _viewPortRenderer.UpdateView();
+        
+        TextPrinter.DrawText(_viewPortRenderer, "Suka", 0, 0, _viewPortRenderer.Font);
     }
     
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)

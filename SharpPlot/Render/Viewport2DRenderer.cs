@@ -180,8 +180,7 @@ public class Viewport2DRenderer
             : TextPrinter.TextMeasure(_horizontalAxis.Name, Font).Height;
 
         var hRatio = (projection[1] - projection[0]) / (_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left);
-        var vRatio = (projection[3] - projection[2]) /
-                     (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
+        var vRatio = (projection[3] - projection[2]) / (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
         
         var minDrawLetter = projection[0];
         var maxDrawLetter = projection[1] - textWidth * hRatio;
@@ -231,12 +230,10 @@ public class Viewport2DRenderer
             TextPrinter.DrawText(this, msVal, stringPositionL, projection[2], sharpPlotFont);
         }
         
-        // if (textWidth != 0)
-        // {
-        //     BaseGraphic.GL.Color(Font.Color.R, Font.Color.G, Font.Color.B);
-        //     TextPrinter.DrawText(BaseGraphic, HorizontalAxis.AxisName, projection[1] - textWidth * hRatio, projection[2],
-        //         Font);
-        // }
+        if (textWidth != 0)
+        {
+            TextPrinter.DrawText(this, HAxisName, projection[1] - textWidth * hRatio, projection[2], Font);
+        }
     }
 
     private void DrawVerticalAxis()
@@ -253,30 +250,11 @@ public class Viewport2DRenderer
             : TextPrinter.TextMeasure(_verticalAxis.Name, Font).Height;
 
         var hRatio = (projection[1] - projection[0]) / (_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left);
-        var vRatio = (projection[3] - projection[2]) /
-                     (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
+        var vRatio = (projection[3] - projection[2]) / (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
 
-        // double minDrawLetter = projection[2];
-        // double maxDrawLetter = projection[3] - textWidth * vRatio;
-        //
-        // foreach (var it in _verticalAxis.Points)
-        // {
-        //     double fVal = it;
-        //     var msVal = fVal.ToString("G10", CultureInfo.InvariantCulture);
-        //     var stringSize = TextPrinter.TextMeasure(msVal, Font).Width;
-        //     var stringPositionL = fVal - stringSize * 0.5 * vRatio;
-        //     var stringPositionR = fVal + stringSize * 0.5 * vRatio;
-        //
-        //     if (stringPositionL >= minDrawLetter && stringPositionR <= maxDrawLetter)
-        //     {
-        //         var sharpPlotFont = Font;
-        //         sharpPlotFont.Color = Math.Abs(fVal) < 1E-15 ? Color.Red : Color.Black;
-        //
-        //         TextPrinter.DrawText(BaseGraphic, msVal, projection[0], stringPositionL, sharpPlotFont,
-        //             TextOrientation.Vertical);
-        //     }
-        // }
-
+        var minDrawLetter = projection[2];
+        var maxDrawLetter = projection[3] - textWidth * vRatio;
+        
         const double dx = 6.0;
         foreach (var it in _verticalAxis.Points)
         {
@@ -305,12 +283,27 @@ public class Viewport2DRenderer
         _vboTicks.Unbind();
         _vaoTicks.Unbind();
         
-        // if (textWidth != 0)
-        // {
-        //     BaseGraphic.GL.Color(Font.Color.R, Font.Color.G, Font.Color.B);
-        //     TextPrinter.DrawText(BaseGraphic, VerticalAxis.AxisName, projection[0], projection[3] - textWidth * vRatio,
-        //         Font, TextOrientation.Vertical);
-        // }
+        foreach (var it in _verticalAxis.Points)
+        {
+            var msVal = it.ToString("G10", CultureInfo.InvariantCulture);
+            var stringSize = TextPrinter.TextMeasure(msVal, Font).Width;
+            var stringPositionL = it - stringSize * 0.5 * vRatio;
+            var stringPositionR = it + stringSize * 0.5 * vRatio;
+
+            if (stringPositionL < minDrawLetter || stringPositionR > maxDrawLetter) continue;
+            
+            var sharpPlotFont = Font;
+            sharpPlotFont.Color = Math.Abs(it) < 1E-15 ? Color.Red : Color.Black;
+
+            TextPrinter.DrawText(this, msVal, projection[0], stringPositionL, sharpPlotFont,
+                TextOrientation.Vertical);
+        }
+        
+        if (textWidth != 0)
+        {
+            TextPrinter.DrawText(this, VAxisName, projection[0], projection[3] - textWidth * vRatio,
+                Font, TextOrientation.Vertical);
+        }
     }
 
     private void DrawGrid()

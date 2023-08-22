@@ -21,12 +21,14 @@ public static class TextPrinter
     private static readonly ShaderProgram Shader;
     private static Texture.Texture? _texture;
     private static Font? _font;
+    private static SolidBrush? _brush;
+    private static PointF? _startPoint;
     private static readonly float[] TextPosition =
     {
-        0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
+        0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+        0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+        -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,
     };
     private static readonly uint[] Indices =
     {
@@ -50,8 +52,8 @@ public static class TextPrinter
         Shader.SetUniform("view", Matrix4.Identity);
         Shader.SetUniform("projection", Matrix4.Identity);
         Shader.GetAttribLocation("position", out var position);
-        Vao.SetAttributePointer(position, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
         Shader.GetAttribLocation("texPosition", out var texPosition);
+        Vao.SetAttributePointer(position, 3, VertexAttribPointerType.Float, false, 5 * sizeof(float), 0);
         Vao.SetAttributePointer(texPosition, 2, VertexAttribPointerType.Float, false, 5 * sizeof(float), 3 * sizeof(float));
     }
 
@@ -62,6 +64,10 @@ public static class TextPrinter
         SharpPlotFont font, TextOrientation orientation = TextOrientation.Horizontal)
     {
         _font ??= font.MakeSystemFont();
+        _brush ??= new SolidBrush(font.Color);
+        _brush.Color = font.Color;
+        _startPoint ??= new PointF(0, 0);
+        
         var camera = renderer.GetCamera();
         var renderSettings = renderer.GetRenderSettings();
         
@@ -73,19 +79,24 @@ public static class TextPrinter
         graphics.Clear(Color.Transparent);
         graphics.SmoothingMode = SmoothingMode.AntiAlias;
         graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-        graphics.DrawString(text, _font, new SolidBrush(font.Color), new PointF(0, 0));
+        graphics.DrawString(text, _font, _brush, _startPoint.Value);
 
-        _texture = new Texture.Texture(textImage);
-        
+        if (orientation == TextOrientation.Vertical)
+        {
+            textImage.RotateFlip(RotateFlipType.Rotate90FlipXY);
+        }
+
         var w = textImage.Width / renderSettings.ScreenSize.Width * camera.GetProjection().Width;
         var h = textImage.Height / renderSettings.ScreenSize.Height * camera.GetProjection().Height;
+        _texture = new Texture.Texture(textImage);
+        textImage.Dispose();
         
-        TextPosition[0] = (float)(x + w);
-        TextPosition[1] = (float)(y + h);
+        TextPosition[0] = (float)x;
+        TextPosition[1] = (float)y;
         TextPosition[5] = (float)(x + w);
         TextPosition[6] = (float)y;
-        TextPosition[10] = (float)x;
-        TextPosition[11] = (float)y;
+        TextPosition[10] = (float)(x + w);
+        TextPosition[11] = (float)(y + h);
         TextPosition[15] = (float)x;
         TextPosition[16] = (float)(y + h);
 
@@ -101,10 +112,5 @@ public static class TextPrinter
         GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         
         Vao.Unbind();
-        
-        // if (orientation == TextOrientation.Vertical)
-        // {
-        //     textImage.RotateFlip(RotateFlipType.Rotate90FlipX);
-        // }
     }
 }

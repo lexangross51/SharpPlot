@@ -39,7 +39,6 @@ public class Texture
         
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _handle);
-        StbImage.stbi_set_flip_vertically_on_load(1);
         
         var data = image.LockBits(
             new Rectangle(0, 0, image.Width, image.Height),
@@ -61,11 +60,8 @@ public class Texture
 
         image.UnlockBits(data);
 
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
-        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
     }
     
     public void Use(TextureUnit unit = TextureUnit.Texture0)
