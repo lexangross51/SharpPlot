@@ -100,12 +100,13 @@ public class Viewport2DRenderer
 
     public void RenderAxis()
     {
-        if (DrawingGrid)
-            DrawGrid();
-        DrawBorder();
-        
         DrawHorizontalTicks();
         DrawVerticalAxis();
+        
+        if (DrawingGrid)
+            DrawGrid();
+        
+        DrawBorder();
     }
 
     public void UpdateView()
@@ -185,14 +186,14 @@ public class Viewport2DRenderer
         var minDrawLetter = projection[0];
         var maxDrawLetter = projection[1] - textWidth * hRatio;
         
-        const double dy = 6;
+        const double dy = 3;
         foreach (var it in _horizontalAxis.Points)
         {
             _points.Add((float)it);
             _points.Add((float)(projection[2] + (heightText - dy) * vRatio));
             _points.Add(0.0f);
             _points.Add((float)it);
-            _points.Add((float)(projection[2] + (heightText) * vRatio));
+            _points.Add((float)(projection[2] + (heightText + dy) * vRatio));
             _points.Add(0.0f);
         }
 
@@ -255,10 +256,10 @@ public class Viewport2DRenderer
         var minDrawLetter = projection[2];
         var maxDrawLetter = projection[3] - textWidth * vRatio;
         
-        const double dx = 6.0;
+        const double dx = 3.0;
         foreach (var it in _verticalAxis.Points)
         {
-            _points.Add((float)(projection[0] + heightText * hRatio));
+            _points.Add((float)(projection[0] + (heightText + dx) * hRatio));
             _points.Add((float)it);
             _points.Add(0.0f);
             _points.Add((float)(projection[0] + (heightText - dx) * hRatio));
@@ -309,8 +310,7 @@ public class Viewport2DRenderer
     private void DrawGrid()
     {
         _points.Clear();
-
-        UpdateView();
+        
         var projection = _camera.GetProjection().GetProjection();
 
         foreach (var it in _horizontalAxis.Points)
@@ -337,6 +337,7 @@ public class Viewport2DRenderer
         _vboTicks.UpdateData(_points.ToArray());
         _vaoTicks.Bind();
         _axesShader.Use();
+        UpdateView();
         _axesShader.GetUniformLocation("lineColor", out var location);
         _axesShader.SetUniform(location, 0.7f, 0.7f, 0.7f, 1.0f);
 
@@ -344,9 +345,5 @@ public class Viewport2DRenderer
         
         _vboTicks.Unbind();
         _vaoTicks.Unbind();
-    }
-
-    public void Clear()
-    {
     }
 }

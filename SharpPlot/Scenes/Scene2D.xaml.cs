@@ -3,6 +3,7 @@ using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
+using SharpPlot.Core.Algorithms;
 using SharpPlot.Render;
 using SharpPlot.Text;
 using SharpPlot.Viewport;
@@ -13,6 +14,7 @@ namespace SharpPlot.Scenes;
 public partial class Scene2D
 {
     private readonly Viewport2DRenderer _viewPortRenderer;
+    private readonly BaseGraphic2D _baseGraphic;
     private bool _isMouseDown;
     private double _mouseXPrevious, _mouseYPrevious;
 
@@ -28,7 +30,7 @@ public partial class Scene2D
         });
 
         Width = 900;
-        Height = 450;
+        Height = 900;
 
         var font = new SharpPlotFont
         {
@@ -42,8 +44,8 @@ public partial class Scene2D
         {
             ScreenSize = new ScreenSize
             {
-                Width = 900,
-                Height = 450,
+                Width = Width,
+                Height = Height,
             },
             Indent = new Indent
             {
@@ -52,9 +54,10 @@ public partial class Scene2D
             }
         };
 
-        var camera = new Camera2D(new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, 0.5));
+        var camera = new Camera2D(new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, 1));
 
         _viewPortRenderer = new Viewport2DRenderer(renderSettings, camera) { Font = font };
+        _baseGraphic = new BaseGraphic2D(renderSettings, camera);
 
         GL.ClearColor(Color.White);
     }
@@ -65,9 +68,7 @@ public partial class Scene2D
         GL.Clear(ClearBufferMask.DepthBufferBit);
 
         _viewPortRenderer.RenderAxis();
-        _viewPortRenderer.UpdateView();
-        
-        TextPrinter.DrawText(_viewPortRenderer, "Suka", 0, 0, _viewPortRenderer.Font);
+        _baseGraphic.DrawObject();
     }
     
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)

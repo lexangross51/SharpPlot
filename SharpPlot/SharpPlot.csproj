@@ -27,7 +27,11 @@
       <None Update="Shaders\TextShader.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+
+
     </ItemGroup>
+
+
 
 
 </Project>

@@ -111,6 +111,7 @@ public static class TextPrinter
         
         GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         
+        Vbo.Unbind();
         Vao.Unbind();
     }
 }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:SharpPlot.Scenes"
         mc:Ignorable="d"
         Title="SharpPlot"
-        Width="950" Height="500"
+        Width="950" Height="950"
         x:Name="MainForm">
 
     <Grid>
