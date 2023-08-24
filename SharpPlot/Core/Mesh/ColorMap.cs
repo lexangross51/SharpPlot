@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
@@ -11,6 +10,7 @@ namespace SharpPlot.Core.Mesh;
 public class ColorMap : IBaseObject
 {
     public PrimitiveType ObjectType { get; }
+    public int PointSize { get; }
     public Point[] Points { get; }
     public Color4[] Colors { get; }
     public uint[]? Indices { get; }
@@ -19,6 +19,7 @@ public class ColorMap : IBaseObject
         ColorInterpolationType interpolation = ColorInterpolationType.Linear)
     {
         ObjectType = mesh.ObjectType;
+        PointSize = 1;
         Points = mesh.Points;
         Indices = mesh.Indices;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Graphics.OpenGL4;
 using SharpPlot.Camera;
 using SharpPlot.Objects;
@@ -12,7 +13,6 @@ public class BaseGraphic2D : IRenderContext
 {
     private readonly ShaderProgram _lineShader;
     private readonly ShaderProgram _fieldShader;
-    private ShaderProgram _currentShader;
     
     private readonly int[] _viewport;
     private readonly Camera2D _camera;
@@ -25,7 +25,6 @@ public class BaseGraphic2D : IRenderContext
     {
         _lineShader = ShaderCollection.LineShader();
         _fieldShader = ShaderCollection.FieldShader();
-        _currentShader = _lineShader;
         _context = new Dictionary<IBaseObject, VertexArrayObject>();
         
         _viewport = new[]
@@ -55,9 +54,12 @@ public class BaseGraphic2D : IRenderContext
     public void UpdateView()
     {
         GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-        _currentShader.SetUniform("model", _camera.GetModelMatrix());
-        _currentShader.SetUniform("view", _camera.GetViewMatrix());
-        _currentShader.SetUniform("projection", _camera.GetProjectionMatrix());
+        _lineShader.SetUniform("model", _camera.GetModelMatrix());
+        _lineShader.SetUniform("view", _camera.GetViewMatrix());
+        _lineShader.SetUniform("projection", _camera.GetProjectionMatrix());
+        _fieldShader.SetUniform("model", _camera.GetModelMatrix());
+        _fieldShader.SetUniform("view", _camera.GetViewMatrix());
+        _fieldShader.SetUniform("projection", _camera.GetProjectionMatrix());
     }
     
     public void AddObject(IBaseObject obj)
@@ -124,20 +126,28 @@ public class BaseGraphic2D : IRenderContext
             vao.Unbind();
             _context.Add(obj, vao);
         }
+        
+        // Update projection
+        obj.BoundingBox(out var lb, out var rt);
+        
+        // var dx = (rt.X - lb.X) * 0.1;
+        // var dy = (rt.Y - lb.Y) * 0.1;
+
+        _camera.GetProjection().SetProjection(new[] { lb.X, rt.X, lb.Y, rt.Y, -1.0, 1.0 });
     }
 
     public void DrawObjects()
     {
         foreach (var (obj, buffer) in _context)
         {
+            GL.PointSize(obj.PointSize);
             buffer.Bind();
-
+            
             if (obj.Indices is null)
             {
                 if (obj.Colors.Length == 1)
                 {
-                    _currentShader = _lineShader;
-                    _currentShader.Use();
+                    _lineShader.Use();
                     _lineShader.GetUniformLocation("lineColor", out var location);
                     _lineShader.SetUniform(location, obj.Colors[0].R, obj.Colors[0].G, obj.Colors[0].B, 1.0f);
                     
@@ -149,8 +159,7 @@ public class BaseGraphic2D : IRenderContext
                 }
                 else
                 {
-                    _currentShader = _fieldShader;
-                    _currentShader.Use();
+                    _fieldShader.Use();
                     
                     UpdateView();
                     
@@ -161,8 +170,7 @@ public class BaseGraphic2D : IRenderContext
             {
                 if (obj.Colors.Length == 1)
                 {
-                    _currentShader = _lineShader;
-                    _currentShader.Use();
+                    _lineShader.Use();
                     _lineShader.GetUniformLocation("lineColor", out var location);
                     _lineShader.SetUniform(location, obj.Colors[0].R, obj.Colors[0].G, obj.Colors[0].B, 1.0f);
                     
@@ -174,8 +182,7 @@ public class BaseGraphic2D : IRenderContext
                 }
                 else
                 {
-                    _currentShader = _fieldShader;
-                    _currentShader.Use();
+                    _fieldShader.Use();
                     
                     UpdateView();
                     
@@ -184,6 +191,8 @@ public class BaseGraphic2D : IRenderContext
             }
             buffer.Unbind();
         }
+        
+        GL.PointSize(1);
     }
     
     public void Clear()

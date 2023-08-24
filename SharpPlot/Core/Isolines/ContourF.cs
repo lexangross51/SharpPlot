@@ -4,11 +4,10 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SharpPlot.Core.Algorithms;
 using SharpPlot.Objects;
-using Point = SharpPlot.Objects.Point;
 
 namespace SharpPlot.Core.Isolines;
 
-public class Contour : IBaseObject
+public class ContourF : IBaseObject
 {
     private readonly DelaunayTriangulation _triangulation = new();
     public PrimitiveType ObjectType { get; }
@@ -17,17 +16,18 @@ public class Contour : IBaseObject
     public Color4[] Colors { get; }
     public uint[]? Indices { get; }
 
-    public Contour(IEnumerable<Point> pointsCollection, IEnumerable<double> values, int levels = 5)
+    public ContourF(IEnumerable<Point> pointsCollection, IEnumerable<double> values, Palette.Palette palette,
+        int levels = 5)
     {
         ObjectType = PrimitiveType.Lines;
         PointSize = 1;
         
         var mesh = _triangulation.Triangulate(pointsCollection);
-        var isolineBuilder = new IsolineBuilder(mesh, values.ToArray());
-        isolineBuilder.BuildIsolines(levels);
+        var isobandBuilder = new IsobandBuilder(mesh, values.ToArray());
+        isobandBuilder.BuildIsobands(levels, palette);
 
-        Points = isolineBuilder.Points.ToArray();
-        Colors = new[] { Color4.Black };
+        Points = isobandBuilder.Points.ToArray();
+        Colors = isobandBuilder.Colors.ToArray();
         Indices = null;
     }
     

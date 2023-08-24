@@ -6,6 +6,7 @@ namespace SharpPlot.Objects;
 public interface IBaseObject
 {
     PrimitiveType ObjectType { get; }
+    int PointSize { get; }
     Point[] Points { get; }
     Color4[] Colors { get; }
     uint[]? Indices { get; }

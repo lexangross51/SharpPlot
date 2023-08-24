@@ -1,4 +1,5 @@
-﻿using SharpPlot.Core.Algorithms;
+﻿using System;
+using SharpPlot.Core.Algorithms;
 
 namespace SharpPlot.Core.Mesh;
 
@@ -11,6 +12,7 @@ public class Element
     {
         Nodes = nodes;
         Edges = new Edge[3];
+        Array.Sort(Nodes);
         
         MakeEdges();
     }

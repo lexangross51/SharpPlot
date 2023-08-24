@@ -262,4 +262,17 @@ public static class Debugger
 
         return points.ToList();
     }
+    
+    public static List<double> GenerateRandomData(int pointsCount)
+    {
+        var random = new Random();
+        var points = new List<double>();
+
+        while (points.Count < pointsCount)
+        {
+            points.Add(random.NextDouble() * 1000.0);
+        }
+
+        return points;
+    }
 }

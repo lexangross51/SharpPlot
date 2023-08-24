@@ -65,7 +65,6 @@ public partial class Scene2D
         GL.ClearColor(Color.White);
         
         Debugger.ReadData("Htop.dat", out var points, out var values);
-        
         for (var i = 0; i < points.Count; i++)
         {
             var point = points[i];
@@ -74,11 +73,13 @@ public partial class Scene2D
             points[i] = point;
         }
 
+        // var points = Debugger.GenerateRandomPoints(2000);
+        // var values = Debugger.GenerateRandomData(2000);
         var delaunay = new DelaunayTriangulation();
         var mesh = delaunay.Triangulate(points);
-        
+
         _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Rainbow));
-        _baseGraphic.AddObject(mesh);
+        // _baseGraphic.AddObject(new Contour(points, values, 30));
     }
 
     private void OnRender(TimeSpan obj)

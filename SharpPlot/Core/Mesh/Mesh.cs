@@ -12,6 +12,7 @@ public class Mesh : IBaseObject
     private readonly Element[] _elements;
 
     public PrimitiveType ObjectType { get; }
+    public int PointSize { get; }
     public Point[] Points { get; }
     public Color4[] Colors { get; }
     public uint[]? Indices { get; }
@@ -26,6 +27,7 @@ public class Mesh : IBaseObject
         Colors = new[] { Color4.Black };
         Indices = new uint[_elements.Length * _elements[0].Nodes.Length];
         ObjectType = _elements.First().Nodes.Length == 3 ? PrimitiveType.Triangles : PrimitiveType.Quads;
+        PointSize = 1;
 
         uint index = 0;
         foreach (var node in _elements.SelectMany(element => element.Nodes))
