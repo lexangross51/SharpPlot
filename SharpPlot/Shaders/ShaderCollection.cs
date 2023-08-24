@@ -9,4 +9,7 @@ public static class ShaderCollection
 
     public static ShaderProgram TextShader()
         => new("Shaders//TextShader.vert", "Shaders//TextShader.frag");
+
+    public static ShaderProgram FieldShader()
+        => new("Shaders//FieldShader.vert", "Shaders//FieldShader.frag");
 }

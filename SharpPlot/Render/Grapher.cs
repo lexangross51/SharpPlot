@@ -1,6 +1,6 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Collections.Generic;
+using OpenTK.Graphics.OpenGL4;
 using SharpPlot.Camera;
-using SharpPlot.Core.Algorithms;
 using SharpPlot.Objects;
 using SharpPlot.Shaders;
 using SharpPlot.Viewport;
@@ -8,22 +8,26 @@ using SharpPlot.Wrappers;
 
 namespace SharpPlot.Render;
 
-public class BaseGraphic2D
+public class BaseGraphic2D : IRenderContext
 {
-    private readonly ShaderProgram _shader;
-    private readonly int[] _viewport;
-    private RenderSettings _renderSettings;
-    private VertexArrayObject _vao;
-    private VertexBufferObject<float>? _vbo;
-    private ElementBufferObject _ebo;
-    private uint[] _indices;
-    private float[] _data;
+    private readonly ShaderProgram _lineShader;
+    private readonly ShaderProgram _fieldShader;
+    private ShaderProgram _currentShader;
     
-    public Camera2D Camera { get; }
+    private readonly int[] _viewport;
+    private readonly Camera2D _camera;
+    private RenderSettings _renderSettings;
+    
+    private readonly Dictionary<IBaseObject, VertexArrayObject> _context;
+
     
     public BaseGraphic2D(RenderSettings renderSettings, Camera2D camera)
     {
-        _shader = ShaderCollection.LineShader();
+        _lineShader = ShaderCollection.LineShader();
+        _fieldShader = ShaderCollection.FieldShader();
+        _currentShader = _lineShader;
+        _context = new Dictionary<IBaseObject, VertexArrayObject>();
+        
         _viewport = new[]
         {
             (int)renderSettings.Indent.Left,
@@ -33,60 +37,7 @@ public class BaseGraphic2D
         };
         
         _renderSettings = renderSettings;
-        Camera = camera;
-        
-        var delaunay = new DelaunayTriangulation();
-        // Debugger.ReadData("Htop.dat", out var points, out var values);
-        //
-        // for (var i = 0; i < points.Count; i++)
-        // {
-        //     var point = points[i];
-        //     point.X -= 2139000;
-        //     point.Y -= 6540000;
-        //     points[i] = point;
-        // }
-        
-        var points = Debugger.GenerateRandomPoints(2000);
-        var mesh = delaunay.Triangulate(points);
-        // var isolineBuilder = new IsolineBuilder(mesh, values.ToArray());
-        // isolineBuilder.BuildIsolines(20);
-        var data = new float[3 * points.Count];
-        //var data = new float[3 * isolineBuilder.Isolines.Count * 2];
-        _indices = new uint[3 * mesh.ElementsCount];
-
-        var index = 0;
-        foreach (var p in points)
-        {
-            data[index++] = (float)p.X;
-            data[index++] = (float)p.Y;
-            data[index++] = (float)p.Z;
-        }
-        // foreach (var iso in isolineBuilder.Isolines)
-        // {
-        //     data[index++] = (float)iso.Start.X;
-        //     data[index++] = (float)iso.Start.Y;
-        //     data[index++] = 0.0f;
-        //     data[index++] = (float)iso.End.X;
-        //     data[index++] = (float)iso.End.Y;
-        //     data[index++] = 0.0f;
-        // }
-
-        _data = data;
-        
-        index = 0;
-        for (int i = 0; i < mesh.ElementsCount; i++)
-        {
-            _indices[index++] = (uint)mesh.Element(i).Nodes[0];
-            _indices[index++] = (uint)mesh.Element(i).Nodes[1];
-            _indices[index++] = (uint)mesh.Element(i).Nodes[2];
-        }
-        
-        _vao = new VertexArrayObject();
-        _vbo = new VertexBufferObject<float>(data);
-        _ebo = new ElementBufferObject(_indices);
-        _shader.Use();
-        _shader.GetAttribLocation("position", out var location);
-        _vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+        _camera = camera;
     }
     
     public int[] GetNewViewport(ScreenSize newScreenSize)
@@ -104,26 +55,135 @@ public class BaseGraphic2D
     public void UpdateView()
     {
         GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-        _shader.SetUniform("model", Camera.GetModelMatrix());
-        _shader.SetUniform("view", Camera.GetViewMatrix());
-        _shader.SetUniform("projection", Camera.GetProjectionMatrix());
+        _currentShader.SetUniform("model", _camera.GetModelMatrix());
+        _currentShader.SetUniform("view", _camera.GetViewMatrix());
+        _currentShader.SetUniform("projection", _camera.GetProjectionMatrix());
     }
     
-    public void DrawObject()
+    public void AddObject(IBaseObject obj)
     {
-        _vao.Bind();
-        _shader.Use();
+        var points = obj.Points;
+        var colors = obj.Colors;
+        var indices = obj.Indices;
+        float[] data;
         
-        UpdateView();
-        
-        _shader.GetUniformLocation("lineColor", out var location);
-        _shader.SetUniform(location, 0.0f, 0.0f, 0.0f, 1.0f);
-        
-        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-        GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-        
-        // GL.DrawArrays(PrimitiveType.Lines, 0, _data.Length / 3);
+        if (colors.Length == 1)
+        {
+            data = new float[points.Length * 3];
+            uint index = 0;
+            foreach (var p in points)
+            {
+                data[index++] = (float)p.X;
+                data[index++] = (float)p.Y;
+                data[index++] = (float)p.Z;
+            }
+            
+            var vao = new VertexArrayObject();
+            var vbo = new VertexBufferObject<float>(data);
+            _lineShader.Use();
+            _lineShader.GetAttribLocation("position", out var location);
+            vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+
+            if (indices is not null)
+            {
+                _ = new ElementBufferObject(indices);
+            }
+            
+            vbo.Unbind();
+            vao.Unbind();
+            _context.Add(obj, vao);
+        }
+        else
+        {
+            data = new float[points.Length * 6];
+            uint index = 0;
+            for (var i = 0; i < points.Length; i++)
+            {
+                data[index++] = (float)points[i].X;
+                data[index++] = (float)points[i].Y;
+                data[index++] = (float)points[i].Z;
+                data[index++] = colors[i].R;
+                data[index++] = colors[i].G;
+                data[index++] = colors[i].B;
+            }
+                
+            var vao = new VertexArrayObject();
+            var vbo = new VertexBufferObject<float>(data);
+            _fieldShader.Use();
+            _fieldShader.GetAttribLocation("position", out var location);
+            vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+            _fieldShader.GetAttribLocation("color", out location);
+            vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+            
+            if (indices is not null)
+            {
+                _ = new ElementBufferObject(indices);
+            }
+            
+            vbo.Unbind();
+            vao.Unbind();
+            _context.Add(obj, vao);
+        }
+    }
+
+    public void DrawObjects()
+    {
+        foreach (var (obj, buffer) in _context)
+        {
+            buffer.Bind();
+
+            if (obj.Indices is null)
+            {
+                if (obj.Colors.Length == 1)
+                {
+                    _currentShader = _lineShader;
+                    _currentShader.Use();
+                    _lineShader.GetUniformLocation("lineColor", out var location);
+                    _lineShader.SetUniform(location, obj.Colors[0].R, obj.Colors[0].G, obj.Colors[0].B, 1.0f);
+                    
+                    UpdateView();
+                    
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    GL.DrawArrays(obj.ObjectType, 0, obj.Points.Length);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                }
+                else
+                {
+                    _currentShader = _fieldShader;
+                    _currentShader.Use();
+                    
+                    UpdateView();
+                    
+                    GL.DrawArrays(obj.ObjectType, 0, obj.Points.Length);
+                }
+            }
+            else
+            {
+                if (obj.Colors.Length == 1)
+                {
+                    _currentShader = _lineShader;
+                    _currentShader.Use();
+                    _lineShader.GetUniformLocation("lineColor", out var location);
+                    _lineShader.SetUniform(location, obj.Colors[0].R, obj.Colors[0].G, obj.Colors[0].B, 1.0f);
+                    
+                    UpdateView();
+                    
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    GL.DrawElements(obj.ObjectType, obj.Indices.Length, DrawElementsType.UnsignedInt, 0);   
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                }
+                else
+                {
+                    _currentShader = _fieldShader;
+                    _currentShader.Use();
+                    
+                    UpdateView();
+                    
+                    GL.DrawElements(obj.ObjectType, obj.Indices.Length, DrawElementsType.UnsignedInt, 0);
+                }
+            }
+            buffer.Unbind();
+        }
     }
     
     public void Clear()

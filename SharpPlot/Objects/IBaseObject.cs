@@ -1,11 +1,14 @@
-﻿using OpenTK.Mathematics;
-using System.Collections.Generic;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
 namespace SharpPlot.Objects;
 
 public interface IBaseObject
 {
-    List<Vector3> Points { get; }
-    List<Color4> Colors { get; }
-    List<uint>? Indices { get; }
+    PrimitiveType ObjectType { get; }
+    Point[] Points { get; }
+    Color4[] Colors { get; }
+    uint[]? Indices { get; }
+
+    void BoundingBox(out Point leftBottom, out Point rightTop);
 }

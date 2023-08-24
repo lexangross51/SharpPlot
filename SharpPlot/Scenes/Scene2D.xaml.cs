@@ -3,7 +3,11 @@ using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
+using SharpPlot.Core;
 using SharpPlot.Core.Algorithms;
+using SharpPlot.Core.Isolines;
+using SharpPlot.Core.Mesh;
+using SharpPlot.Core.Palette;
 using SharpPlot.Render;
 using SharpPlot.Text;
 using SharpPlot.Viewport;
@@ -14,7 +18,7 @@ namespace SharpPlot.Scenes;
 public partial class Scene2D
 {
     private readonly Viewport2DRenderer _viewPortRenderer;
-    private readonly BaseGraphic2D _baseGraphic;
+    private readonly IRenderContext _baseGraphic;
     private bool _isMouseDown;
     private double _mouseXPrevious, _mouseYPrevious;
 
@@ -39,7 +43,6 @@ public partial class Scene2D
             FontFamily = "Times New Roman"
         };
         var indent = TextPrinter.TextMeasure("0", font).Height;
-
         var renderSettings = new RenderSettings
         {
             ScreenSize = new ScreenSize
@@ -60,6 +63,22 @@ public partial class Scene2D
         _baseGraphic = new BaseGraphic2D(renderSettings, camera);
 
         GL.ClearColor(Color.White);
+        
+        Debugger.ReadData("Htop.dat", out var points, out var values);
+        
+        for (var i = 0; i < points.Count; i++)
+        {
+            var point = points[i];
+            point.X -= 2139000;
+            point.Y -= 6540000;
+            points[i] = point;
+        }
+
+        var delaunay = new DelaunayTriangulation();
+        var mesh = delaunay.Triangulate(points);
+        
+        _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Rainbow));
+        _baseGraphic.AddObject(mesh);
     }
 
     private void OnRender(TimeSpan obj)
@@ -67,8 +86,8 @@ public partial class Scene2D
         GL.Clear(ClearBufferMask.ColorBufferBit);
         GL.Clear(ClearBufferMask.DepthBufferBit);
 
+        _baseGraphic.DrawObjects();
         _viewPortRenderer.RenderAxis();
-        _baseGraphic.DrawObject();
     }
     
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)

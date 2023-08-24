@@ -83,7 +83,7 @@ public sealed class ShaderProgram : IDisposable
 
     private void Dispose(bool disposing)
     {
-        if (_isDisposed) return;
+        if (_isDisposed || !disposing) return;
         
         GL.DeleteProgram(_shaderProgram);
         _isDisposed = true;

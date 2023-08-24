@@ -11,7 +11,8 @@ public struct RenderSettings
 
 public interface IRenderContext
 {
-    void DrawObject(IBaseObject obj);
+    void AddObject(IBaseObject obj);
+    void DrawObjects();
     void UpdateView();
     int[] GetNewViewport(ScreenSize newScreenSize);
     void Clear();

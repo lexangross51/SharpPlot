@@ -1,25 +1,33 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL4;
 using StbImageSharp;
 using System.IO;
 using PixelFormat = OpenTK.Graphics.OpenGL4.PixelFormat;
+using Rectangle = System.Drawing.Rectangle;
 
 namespace SharpPlot.Texture;
 
-public class Texture
+public class Texture : IDisposable
 {
     private readonly int _handle;
+    private static Rectangle _rectangle;
+    private bool _isDisposed;
 
-    public Texture(string text)
+    static Texture()
+    {
+        _rectangle = new Rectangle();
+    }
+
+    public Texture(string path)
     {
         _handle = GL.GenTexture();
 
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _handle);
-        StbImage.stbi_set_flip_vertically_on_load(1);
 
-        using (var stream = File.OpenRead(text))
+        using (var stream = File.OpenRead(path))
         {
             var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
@@ -39,13 +47,14 @@ public class Texture
         
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _handle);
+
+        _rectangle.Height = image.Height;
+        _rectangle.Width = image.Width;
         
-        var data = image.LockBits(
-            new Rectangle(0, 0, image.Width, image.Height),
-            ImageLockMode.ReadOnly,
+        var data = image.LockBits(_rectangle,ImageLockMode.ReadOnly,
             System.Drawing.Imaging.PixelFormat.Format32bppArgb
         );
-
+        
         GL.TexImage2D(
             TextureTarget.Texture2D,
             0,
@@ -57,7 +66,7 @@ public class Texture
             PixelType.UnsignedByte,
             data.Scan0
         );
-
+        
         image.UnlockBits(data);
 
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
@@ -68,5 +77,18 @@ public class Texture
     {
         GL.ActiveTexture(unit);
         GL.BindTexture(TextureTarget.Texture2D, _handle);
+    }
+    
+    private void Dispose(bool disposing)
+    {
+        if (_isDisposed || !disposing) return;
+        GL.DeleteTexture(_handle);
+        _isDisposed = true;
+    }
+    
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

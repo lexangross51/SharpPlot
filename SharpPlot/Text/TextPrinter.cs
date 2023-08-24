@@ -21,8 +21,8 @@ public static class TextPrinter
     private static readonly ShaderProgram Shader;
     private static Texture.Texture? _texture;
     private static Font? _font;
-    private static SolidBrush? _brush;
-    private static PointF? _startPoint;
+    private static readonly SolidBrush Brush;
+    private static readonly PointF StartPoint;
     private static readonly float[] TextPosition =
     {
         -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -42,6 +42,9 @@ public static class TextPrinter
 
     static TextPrinter()
     {
+        StartPoint = new PointF(0, 0);
+        Brush = new SolidBrush(Color.Black);
+        
         Vao = new VertexArrayObject();
         Vbo = new VertexBufferObject<float>(TextPosition, BufferUsageHint.DynamicDraw);
         Ebo = new ElementBufferObject(Indices);
@@ -58,15 +61,13 @@ public static class TextPrinter
     }
 
     public static Size TextMeasure(string text, SharpPlotFont font)
-        => TextRenderer.MeasureText(text, font.MakeSystemFont());
+        => TextRenderer.MeasureText(text, font.SystemFont);
 
     public static void DrawText(Viewport2DRenderer renderer, string text, double x, double y, 
         SharpPlotFont font, TextOrientation orientation = TextOrientation.Horizontal)
     {
-        _font ??= font.MakeSystemFont();
-        _brush ??= new SolidBrush(font.Color);
-        _brush.Color = font.Color;
-        _startPoint ??= new PointF(0, 0);
+        _font = font.SystemFont;
+        Brush.Color = font.Color;
         
         var camera = renderer.GetCamera();
         var renderSettings = renderer.GetRenderSettings();
@@ -79,7 +80,8 @@ public static class TextPrinter
         graphics.Clear(Color.Transparent);
         graphics.SmoothingMode = SmoothingMode.AntiAlias;
         graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-        graphics.DrawString(text, _font, _brush, _startPoint.Value);
+        graphics.DrawString(text, _font, Brush, StartPoint);
+        graphics.Dispose();
 
         if (orientation == TextOrientation.Vertical)
         {
@@ -113,5 +115,6 @@ public static class TextPrinter
         
         Vbo.Unbind();
         Vao.Unbind();
+        _texture.Dispose();
     }
 }

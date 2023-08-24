@@ -143,26 +143,6 @@ public class DelaunayTriangulation
                 .Where((_, index) => (index & 1) == 1)
                 .ToList();
 
-            // foreach (var triIndex in _triIndices)
-            // {
-            //     foreach (var edge in _triangles[triIndex].Edges)
-            //     {
-            //         if (_uniqueEdges.Contains(edge) || _uniqueEdges.Contains(edge.Flip()))
-            //         {
-            //             _uniqueEdges.Add(edge);
-            //         }
-            //         else
-            //         {
-            //             _uniqueEdges.Add(edge);
-            //         }
-            //     }
-            // }
-            //
-            // _uniqueEdges = _uniqueEdges.GroupBy(num => num)
-            //     .Where(group => group.Count() == 1)
-            //     .SelectMany(group => group)
-            //     .ToList();
-
             // Rewrite the edges of the old triangle for the new ones
             foreach (var edge in _uniqueEdges)
             {
@@ -208,7 +188,7 @@ public class DelaunayTriangulation
             {
                 tri.Nodes[i] -= 3;
             }
-
+            
             for (int i = 0; i < tri.Edges.Length; i++)
             {
                 tri.Edges[i].Node1 -= 3;

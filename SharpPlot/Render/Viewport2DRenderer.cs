@@ -100,13 +100,12 @@ public class Viewport2DRenderer
 
     public void RenderAxis()
     {
-        DrawHorizontalTicks();
-        DrawVerticalAxis();
-        
         if (DrawingGrid)
             DrawGrid();
         
         DrawBorder();
+        DrawHorizontalTicks();
+        DrawVerticalAxis();
     }
 
     public void UpdateView()
