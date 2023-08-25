@@ -36,6 +36,7 @@ public class ColorMap : IBaseObject
         {
             valuesRanges[i] = minValue + i * valueStep;
         }
+        valuesRanges[^1] = maxValue;
         
         for (int j = 0; j < Points.Length; j++)
         {

@@ -250,6 +250,35 @@ public static class Debugger
         }
     }
     
+    public static void ReadData(string fPoints, string fValues, out List<Point> points, out List<double> values)
+    {
+        points = new List<Point>();
+        values = new List<double>();
+        
+        var lines = File.ReadAllLines(fPoints);
+        foreach (var line in lines)
+        {
+            var words = line.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
+            points.Add(new Point
+            {
+                X = words[0],
+                Y = words[1],
+            });
+        }
+        
+        lines = File.ReadAllLines(fValues);
+        foreach (var line in lines)
+        {
+            var words = line.Split(' ', '\t', '\n');
+
+            foreach (var word in words)
+            {
+                if (word == "") continue;
+                values.Add(double.Parse(word, CultureInfo.InvariantCulture));
+            }
+        }
+    }
+    
     public static List<Point> GenerateRandomPoints(int pointsCount)
     {
         var random = new Random();

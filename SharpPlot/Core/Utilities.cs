@@ -50,10 +50,10 @@ public static class ColorInterpolator
         var start = palette[rangeNumber];
         var end = rangeNumber == palette.ColorsCount - 1 ? palette[rangeNumber] : palette[rangeNumber + 1];
 
-        var t = (value - range[rangeNumber + 1]) / (range[rangeNumber] - range[rangeNumber + 1]);
-        var r = end.R + t * (start.R - end.R);
-        var g = end.G + t * (start.G - end.G);
-        var b = end.B + t * (start.B - end.B);
+        var t = (value - range[rangeNumber]) / (range[rangeNumber + 1] - range[rangeNumber]);
+        var r = start.R + t * (end.R - start.R);
+        var g = start.G + t * (end.G - start.G);
+        var b = start.B + t * (end.B - start.B);
         return new Color4((float)r, (float)g, (float)b, 1.0f);
     }
 }

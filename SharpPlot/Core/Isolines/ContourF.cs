@@ -19,7 +19,7 @@ public class ContourF : IBaseObject
     public ContourF(IEnumerable<Point> pointsCollection, IEnumerable<double> values, Palette.Palette palette,
         int levels = 5)
     {
-        ObjectType = PrimitiveType.Lines;
+        ObjectType = PrimitiveType.Triangles;
         PointSize = 1;
         
         var mesh = _triangulation.Triangulate(pointsCollection);
