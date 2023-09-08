@@ -16,4 +16,5 @@ public abstract class AbstractCamera
 
     public abstract void Zoom(double xPivot, double yPivot, double delta);
     public abstract void Move(double dx, double dy);
+    public abstract void Rotate(double ox, double oy, double oz, double angle);
 }

@@ -3,11 +3,11 @@ using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
-using SharpPlot.Core;
 using SharpPlot.Core.Algorithms;
 using SharpPlot.Core.Isolines;
 using SharpPlot.Core.Mesh;
 using SharpPlot.Core.Palette;
+using SharpPlot.Objects;
 using SharpPlot.Render;
 using SharpPlot.Text;
 using SharpPlot.Viewport;
@@ -15,26 +15,26 @@ using Color = System.Drawing.Color;
 
 namespace SharpPlot.Scenes;
 
-public partial class Scene2D
+public sealed partial class Scene2D
 {
     private readonly Viewport2DRenderer _viewPortRenderer;
     private readonly IRenderContext _baseGraphic;
     private bool _isMouseDown;
     private double _mouseXPrevious, _mouseYPrevious;
 
-    public Scene2D()
+    public Scene2D(double width, double height)
     {
         InitializeComponent();
         
         GlControl.Start(new GLWpfControlSettings
         {
-            MajorVersion = 4,
-            MinorVersion = 6,
+            MajorVersion = 2,
+            MinorVersion = 1,
             RenderContinuously = false
         });
 
-        Width = 900;
-        Height = 900;
+        Width = width;
+        Height = height;
 
         var font = new SharpPlotFont
         {
@@ -47,8 +47,8 @@ public partial class Scene2D
         {
             ScreenSize = new ScreenSize
             {
-                Width = Width,
-                Height = Height,
+                Width = width,
+                Height = height,
             },
             Indent = new Indent
             {
@@ -57,14 +57,16 @@ public partial class Scene2D
             }
         };
 
-        var camera = new Camera2D(new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, 1));
+        var camera = new Camera2D(new OrthographicProjection(new double[] { -1, 1, -1, 1, -1, 1 }, height / width));
 
         _viewPortRenderer = new Viewport2DRenderer(renderSettings, camera) { Font = font };
         _baseGraphic = new BaseGraphic2D(renderSettings, camera);
 
         GL.ClearColor(Color.White);
         
-        Debugger.ReadData("points.txt", "values.txt", out var points, out var values);
+        // Debugger.ReadData("points", out var points);
+        // Debugger.ReadData("points", "values", out var points, out var values);
+        // Debugger.ReadData("HTop.dat", out var points, out var values);
         // for (var i = 0; i < points.Count; i++)
         // {
         //     var point = points[i];
@@ -75,11 +77,12 @@ public partial class Scene2D
 
         // var points = Debugger.GenerateRandomPoints(2000);
         // var values = Debugger.GenerateRandomData(2000);
-        var delaunay = new DelaunayTriangulation();
-        var mesh = delaunay.Triangulate(points);
+        // var delaunay = new DelaunayTriangulation();
+        // var mesh = delaunay.Triangulate(points);
         // _baseGraphic.AddObject(new ContourF(points, values, Palette.RainbowReverse, 20));
-        _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.RainbowReverse));
-        _baseGraphic.AddObject(new Contour(points, values, 20));
+        // _baseGraphic.AddObject(mesh);
+        // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.RainbowReverse));
+        // _baseGraphic.AddObject(new Contour(points, values, 30));
     }
 
     private void OnRender(TimeSpan obj)
@@ -141,5 +144,21 @@ public partial class Scene2D
     {
         _viewPortRenderer.DrawingGrid = !_viewPortRenderer.DrawingGrid;
         GlControl.InvalidateVisual();
+    }
+    
+    public void OnChangeSize(ScreenSize newSize)
+    {
+        _viewPortRenderer.GetNewViewport(newSize);
+        _baseGraphic.GetNewViewport(newSize);
+        _viewPortRenderer.UpdateView();
+        
+        Width = newSize.Width;
+        Height = newSize.Height;
+        GlControl.InvalidateArrange();
+    }
+
+    public void AddObject(IBaseObject obj)
+    {
+        _baseGraphic.AddObject(obj);
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using OpenTK.Graphics.OpenGL4;
 using SharpPlot.Camera;
 using SharpPlot.Objects;
@@ -9,59 +8,33 @@ using SharpPlot.Wrappers;
 
 namespace SharpPlot.Render;
 
-public class BaseGraphic2D : IRenderContext
+public class BaseGraphic3D : IRenderContext
 {
     private readonly ShaderProgram _lineShader;
     private readonly ShaderProgram _fieldShader;
     
     private readonly int[] _viewport;
-    private readonly Camera2D _camera;
+    private readonly Camera3D _camera;
     private RenderSettings _renderSettings;
     
     private readonly Dictionary<IBaseObject, VertexArrayObject> _context;
 
-    
-    public BaseGraphic2D(RenderSettings renderSettings, Camera2D camera)
+    public BaseGraphic3D(RenderSettings renderSettings, Camera3D camera)
     {
         _lineShader = ShaderCollection.LineShader();
         _fieldShader = ShaderCollection.FieldShader();
         _context = new Dictionary<IBaseObject, VertexArrayObject>();
+        _renderSettings = renderSettings;
+        _camera = camera;
         
         _viewport = new[]
         {
-            (int)renderSettings.Indent.Left,
-            (int)renderSettings.Indent.Bottom,
-            (int)(renderSettings.ScreenSize.Width - renderSettings.Indent.Left),
-            (int)(renderSettings.ScreenSize.Height - renderSettings.Indent.Bottom)
+            0, 0,
+            (int)_renderSettings.ScreenSize.Width,
+            (int)_renderSettings.ScreenSize.Height
         };
-        
-        _renderSettings = renderSettings;
-        _camera = camera;
-    }
-    
-    public int[] GetNewViewport(ScreenSize newScreenSize)
-    {
-        _renderSettings.ScreenSize = newScreenSize;
-        
-        _viewport[0] = (int)_renderSettings.Indent.Left;
-        _viewport[1] = (int)_renderSettings.Indent.Bottom;
-        _viewport[2] = (int)(_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left);
-        _viewport[3] = (int)(_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
-
-        return _viewport;
     }
 
-    public void UpdateView()
-    {
-        GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-        _lineShader.SetUniform("model", _camera.GetModelMatrix());
-        _lineShader.SetUniform("view", _camera.GetViewMatrix());
-        _lineShader.SetUniform("projection", _camera.GetProjectionMatrix());
-        _fieldShader.SetUniform("model", _camera.GetModelMatrix());
-        _fieldShader.SetUniform("view", _camera.GetViewMatrix());
-        _fieldShader.SetUniform("projection", _camera.GetProjectionMatrix());
-    }
-    
     public void AddObject(IBaseObject obj)
     {
         var points = obj.Points;
@@ -127,13 +100,9 @@ public class BaseGraphic2D : IRenderContext
             _context.Add(obj, vao);
         }
         
-        // Update projection
-        obj.BoundingBox(out var lb, out var rt);
-        
-        // var dx = (rt.X - lb.X) * 0.1;
-        // var dy = (rt.Y - lb.Y) * 0.1;
-
-        _camera.GetProjection().SetProjection(new[] { lb.X, rt.X, lb.Y, rt.Y, -1.0, 1.0 });
+        // // Update projection
+        // obj.BoundingBox(out var lb, out var rt);
+        // _camera.GetProjection().SetProjection(new[] { lb.X, rt.X, lb.Y, rt.Y, -1.0, 1.0 });
     }
 
     public void DrawObjects()
@@ -142,7 +111,7 @@ public class BaseGraphic2D : IRenderContext
         {
             GL.PointSize(obj.PointSize);
             buffer.Bind();
-            
+
             if (obj.Indices is null)
             {
                 if (obj.Colors.Length == 1)
@@ -150,9 +119,9 @@ public class BaseGraphic2D : IRenderContext
                     _lineShader.Use();
                     _lineShader.GetUniformLocation("lineColor", out var location);
                     _lineShader.SetUniform(location, obj.Colors[0].R, obj.Colors[0].G, obj.Colors[0].B, 1.0f);
-                    
+
                     UpdateView();
-                    
+
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     GL.DrawArrays(obj.ObjectType, 0, obj.Points.Length);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
@@ -160,9 +129,9 @@ public class BaseGraphic2D : IRenderContext
                 else
                 {
                     _fieldShader.Use();
-                    
+
                     UpdateView();
-                    
+
                     GL.DrawArrays(obj.ObjectType, 0, obj.Points.Length);
                 }
             }
@@ -173,28 +142,53 @@ public class BaseGraphic2D : IRenderContext
                     _lineShader.Use();
                     _lineShader.GetUniformLocation("lineColor", out var location);
                     _lineShader.SetUniform(location, obj.Colors[0].R, obj.Colors[0].G, obj.Colors[0].B, 1.0f);
-                    
+
                     UpdateView();
-                    
+
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    GL.DrawElements(obj.ObjectType, obj.Indices.Length, DrawElementsType.UnsignedInt, 0);   
+                    GL.DrawElements(obj.ObjectType, obj.Indices.Length, DrawElementsType.UnsignedInt, 0);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 }
                 else
                 {
                     _fieldShader.Use();
-                    
+
                     UpdateView();
-                    
+
                     GL.DrawElements(obj.ObjectType, obj.Indices.Length, DrawElementsType.UnsignedInt, 0);
                 }
             }
+
             buffer.Unbind();
         }
-        
+
         GL.PointSize(1);
     }
-    
+
+    public void UpdateView()
+    {        
+        GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
+        _lineShader.SetUniform("model", _camera.GetModelMatrix());
+        _lineShader.SetUniform("view", _camera.GetViewMatrix());
+        _lineShader.SetUniform("projection", _camera.GetProjectionMatrix());
+        _fieldShader.SetUniform("model", _camera.GetModelMatrix());
+        _fieldShader.SetUniform("view", _camera.GetViewMatrix());
+        _fieldShader.SetUniform("projection", _camera.GetProjectionMatrix());
+    }
+
+    public int[] GetNewViewport(ScreenSize newScreenSize)
+    {
+        _camera.GetProjection().Ratio = newScreenSize.Height / newScreenSize.Width;
+        _renderSettings.ScreenSize = newScreenSize;
+        
+        _viewport[0] = 0;
+        _viewport[1] = 0;
+        _viewport[2] = (int)_renderSettings.ScreenSize.Width;
+        _viewport[3] = (int)_renderSettings.ScreenSize.Height;
+
+        return _viewport;
+    }
+
     public void Clear()
     {
     }

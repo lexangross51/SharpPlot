@@ -39,7 +39,7 @@ public class Viewport2DRenderer
     }
 
     public SharpPlotFont Font { get; set; }
-    public bool DrawingGrid { get; set; } = true;
+    public bool DrawingGrid { get; set; } = false;
 
     public Camera2D GetCamera() => _camera;
 
@@ -117,8 +117,9 @@ public class Viewport2DRenderer
         _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
     }
 
-    private int[] GetNewViewport(ScreenSize newScreenSize)
+    public int[] GetNewViewport(ScreenSize newScreenSize)
     {
+        _camera.GetProjection().Ratio = newScreenSize.Height / newScreenSize.Width;
         _renderSettings.ScreenSize = newScreenSize;
 
         _viewport[0] = (int)_renderSettings.Indent.Left;
@@ -180,7 +181,8 @@ public class Viewport2DRenderer
             : TextPrinter.TextMeasure(_horizontalAxis.Name, Font).Height;
 
         var hRatio = (projection[1] - projection[0]) / (_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left);
-        var vRatio = (projection[3] - projection[2]) / (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
+        // var vRatio = (projection[3] - projection[2]) / (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
+        var vRatio = (projection[3] - projection[2]) / _renderSettings.ScreenSize.Height;
         
         var minDrawLetter = projection[0];
         var maxDrawLetter = projection[1] - textWidth * hRatio;
@@ -249,7 +251,8 @@ public class Viewport2DRenderer
             ? TextPrinter.TextMeasure("0", Font).Height
             : TextPrinter.TextMeasure(_verticalAxis.Name, Font).Height;
 
-        var hRatio = (projection[1] - projection[0]) / (_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left);
+        // var hRatio = (projection[1] - projection[0]) / (_renderSettings.ScreenSize.Width - _renderSettings.Indent.Left);
+        var hRatio = (projection[1] - projection[0]) / _renderSettings.ScreenSize.Width;
         var vRatio = (projection[3] - projection[2]) / (_renderSettings.ScreenSize.Height - _renderSettings.Indent.Bottom);
 
         var minDrawLetter = projection[2];

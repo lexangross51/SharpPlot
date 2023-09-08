@@ -39,8 +39,8 @@ public class DelaunayTriangulation
         // Make super triangle that includes all points
         var superTriangle = new Element(new[] { 0, 1, 2 });
         _triangles.Add(superTriangle);
-        _triPoints.Add(new Point { X = minX - 1.5 * dx, Y = minY - 1.5 * dy });
-        _triPoints.Add(new Point { X = maxX + 1.5 * dx, Y = minY - 1.5 * dy });
+        _triPoints.Add(new Point { X = minX - 1.8 * dx, Y = minY - 1.8 * dy });
+        _triPoints.Add(new Point { X = maxX + 1.8 * dx, Y = minY - 1.8 * dy });
         _triPoints.Add(new Point { X = (minX + maxX) * 0.5, Y = maxY + 3.0 * dy });
         
         foreach (var p in points)
@@ -200,37 +200,6 @@ public class DelaunayTriangulation
 
 public static class Debugger
 {
-    private static int _fileIndex;
-    
-    public static void WriteMesh(List<Point> points, List<Element> triangles)
-    {
-        var sw = new StreamWriter($"C://Users//lexan//source//repos//Python//triangulation//points{_fileIndex}");
-        foreach (var p in points)
-        {
-            sw.WriteLine($"{p.X} {p.Y}", CultureInfo.InvariantCulture);
-        }
-        sw.Close();
-        
-        sw = new StreamWriter($"C://Users//lexan//source//repos//Python//triangulation//triangles{_fileIndex}");
-        foreach (var p in triangles)
-        {
-            sw.WriteLine($"{p.Nodes[0]} {p.Nodes[1]} {p.Nodes[2]}", CultureInfo.InvariantCulture);
-        }
-        sw.Close();
-
-        _fileIndex++;
-    }
-    
-    public static void WritePoints(List<Point> points)
-    {
-        var sw = new StreamWriter($"C://Users//lexan//source//repos//Python//triangulation//area");
-        foreach (var p in points)
-        {
-            sw.WriteLine($"{p.X} {p.Y}", CultureInfo.InvariantCulture);
-        }
-        sw.Close();
-    }
-    
     public static void ReadData(string filename, out List<Point> points, out List<double> values)
     {
         points = new List<Point>();
@@ -250,6 +219,23 @@ public static class Debugger
         }
     }
     
+    public static void ReadData(string filename, out List<Point> points)
+    {
+        points = new List<Point>();
+        var lines = File.ReadAllLines(filename);
+
+        foreach (var line in lines)
+        {
+            var lLine = line.Replace(',', '.');
+            var words = lLine.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
+            points.Add(new Point
+            {
+                X = words[0],
+                Y = words[1],
+            });
+        }
+    }
+    
     public static void ReadData(string fPoints, string fValues, out List<Point> points, out List<double> values)
     {
         points = new List<Point>();
@@ -258,7 +244,8 @@ public static class Debugger
         var lines = File.ReadAllLines(fPoints);
         foreach (var line in lines)
         {
-            var words = line.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
+            var lLine = line.Replace(',', '.');
+            var words = lLine.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
             points.Add(new Point
             {
                 X = words[0],
@@ -274,7 +261,8 @@ public static class Debugger
             foreach (var word in words)
             {
                 if (word == "") continue;
-                values.Add(double.Parse(word, CultureInfo.InvariantCulture));
+                var wWord = word.Replace(',', '.');
+                values.Add(double.Parse(wWord, CultureInfo.InvariantCulture));
             }
         }
     }
@@ -286,7 +274,7 @@ public static class Debugger
 
         while (points.Count < pointsCount)
         {
-            points.Add(new Point { X = random.NextDouble() * 1000.0, Y = random.NextDouble() * 1000.0 });
+            points.Add(new Point { X = random.NextDouble() * 10.0, Y = random.NextDouble() * 10.0 });
         }
 
         return points.ToList();
