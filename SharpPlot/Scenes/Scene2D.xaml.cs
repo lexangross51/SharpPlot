@@ -66,7 +66,7 @@ public sealed partial class Scene2D
         
         // Debugger.ReadData("points", out var points);
         // Debugger.ReadData("points", "values", out var points, out var values);
-        // Debugger.ReadData("HTop.dat", out var points, out var values);
+        // Debugger.ReadData("spline", out var points, out var values);
         // for (var i = 0; i < points.Count; i++)
         // {
         //     var point = points[i];
@@ -80,15 +80,16 @@ public sealed partial class Scene2D
         // var delaunay = new DelaunayTriangulation();
         // var mesh = delaunay.Triangulate(points);
         // _baseGraphic.AddObject(new ContourF(points, values, Palette.RainbowReverse, 20));
-        // _baseGraphic.AddObject(mesh);
-        // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.RainbowReverse));
+        // // _baseGraphic.AddObject(mesh);
+        // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Rainbow));
         // _baseGraphic.AddObject(new Contour(points, values, 30));
     }
 
     private void OnRender(TimeSpan obj)
     {
+        GL.Disable(EnableCap.DepthTest);
         GL.Clear(ClearBufferMask.ColorBufferBit);
-        GL.Clear(ClearBufferMask.DepthBufferBit);
+        // GL.Clear(ClearBufferMask.DepthBufferBit);
 
         _baseGraphic.DrawObjects();
         _viewPortRenderer.RenderAxis();

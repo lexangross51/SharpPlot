@@ -23,7 +23,6 @@ public class Viewport3DRenderer
 
     public void UpdateView()
     {
-        
     }
     
     public int[] GetNewViewport(ScreenSize newScreenSize)

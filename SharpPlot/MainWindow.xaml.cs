@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using SharpPlot.Scenes;
 using SharpPlot.Viewport;
 
@@ -92,6 +93,6 @@ public sealed partial class MainWindow
             scene.OnChangeSize(new ScreenSize { Width = controlWidth, Height = controlHeight });
         }
 
-        _scene3D.OnChangeSize(new ScreenSize { Width = e.NewSize.Width - 40, Height = e.NewSize.Height - 85 });
+        _scene3D.OnChangeSize(new ScreenSize { Width = e.NewSize.Width - 26, Height = e.NewSize.Height - 85 });
     }
 }

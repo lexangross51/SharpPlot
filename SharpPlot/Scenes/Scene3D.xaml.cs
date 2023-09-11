@@ -2,13 +2,16 @@
 using System.Drawing;
 using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
+using SharpPlot.Core.Algorithms;
+using SharpPlot.Core.Mesh;
+using SharpPlot.Core.Palette;
 using SharpPlot.Core.Primitives;
 using SharpPlot.Render;
 using SharpPlot.Text;
 using SharpPlot.Viewport;
-using Point = SharpPlot.Objects.Point;
 
 namespace SharpPlot.Scenes;
 
@@ -17,8 +20,7 @@ public partial class Scene3D
     private readonly Viewport3DRenderer _viewPortRenderer;
     private readonly IRenderContext _baseGraphic;
     private bool _isMouseDown;
-    private bool _isXClicked, _isYClicked, _isZClicked;
-    
+
     public Scene3D(double width, double height)
     {
         InitializeComponent();
@@ -48,25 +50,35 @@ public partial class Scene3D
             }
         };
 
-        var camera = new Camera3D(new PerspectiveProjection(width / height), new Point(0, 0, -3), new Point(0, 0));
+        var camera = new Camera3D(new PerspectiveProjection(width / height), new Vector3(0, 5, -3), new Vector3(0, 0, 0));
 
         _viewPortRenderer = new Viewport3DRenderer(renderSettings, camera) { Font = font };
         _baseGraphic = new BaseGraphic3D(renderSettings, camera);
 
         GL.ClearColor(Color.White);
-        GL.Enable(EnableCap.DepthTest);
         
+        // Debugger.ReadData("spline", out var points, out var values);
+        // var delaunay = new DelaunayTriangulation();
+        // var mesh = delaunay.Triangulate(points);
+        // for (int i = 0; i < points.Count; i++)
+        // {
+        //     mesh.Points[i].Z = values[i];
+        // }
+        //
+        // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Autumn));
+        // _baseGraphic.AddObject(mesh);
         _baseGraphic.AddObject(new Cube());
     }
 
     private void OnRender(TimeSpan obj)
     {
-        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+        GL.Clear(ClearBufferMask.ColorBufferBit);
         _baseGraphic.DrawObjects();
     }
 
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)
     {        
+        e.Handled = true;
         _viewPortRenderer.GetCamera().Zoom(0, 0, e.Delta);
         _viewPortRenderer.UpdateView();
         GlControl.InvalidateVisual();
@@ -74,58 +86,24 @@ public partial class Scene3D
 
     private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
+        e.Handled = true;
         _isMouseDown = true;
     }
     
     private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
+        e.Handled = true;
         _isMouseDown = false;
+        _viewPortRenderer.GetCamera().FirstMouse = true;
     }
 
     private void OnMouseMove(object sender, MouseEventArgs e)
     {
-        
-    }
-    
-    private void OnKeyDown(object sender, KeyEventArgs e)
-    {
-        switch (e.Key)
-        {
-            case Key.X:
-                _isXClicked = true;
-                e.Handled = true;
-                break;
-            
-            case Key.Y:
-                _isYClicked = true;
-                e.Handled = true;
-                break;
-            
-            case Key.Z:
-                _isZClicked = true;
-                e.Handled = true;
-                break;
-        }
-    }
-    
-    private void OnKeyUp(object sender, KeyEventArgs e)
-    {
-        switch (e.Key)
-        {
-            case Key.X:
-                _isXClicked = false;
-                break;
-            
-            case Key.Y:
-                _isYClicked = false;
-                break;
-            
-            case Key.Z:
-                _isZClicked = false;
-                break;
-        }
-        
-        e.Handled = true;
+        if (!_isMouseDown) return;
+
+        var pos = e.GetPosition(this);
+        _viewPortRenderer.GetCamera().Move((float)pos.X, (float)pos.Y);
+        GlControl.InvalidateVisual();
     }
     
     public void OnChangeSize(ScreenSize newSize)

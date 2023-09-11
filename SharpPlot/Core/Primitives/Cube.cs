@@ -7,61 +7,51 @@ namespace SharpPlot.Core.Primitives;
 
 public class Cube : IBaseObject
 {
-    public PrimitiveType ObjectType { get; }
-    public int PointSize { get; }
-    public Point[] Points { get; }
-    public Color4[] Colors { get; }
-    public uint[]? Indices { get; }
-
-    public Cube()
+    public PrimitiveType ObjectType => PrimitiveType.Triangles;
+    public int PointSize => 1;
+    public Point[] Points { get; } = 
     {
-        ObjectType = PrimitiveType.Triangles;
-        PointSize = 1;
+        new(-0.5, -0.5, -0.5),
+        new(0.5, -0.5, -0.5),
+        new(0.5, 0.5, -0.5),
+        new(0.5, 0.5, -0.5),
+        new(-0.5, 0.5, -0.5),
+        new(-0.5, -0.5, -0.5),
+        new(-0.5, -0.5, 0.5),
+        new(0.5, -0.5, 0.5),
+        new(0.5, 0.5, 0.5),
+        new(0.5, 0.5, 0.5),
+        new(-0.5, 0.5, 0.5),
+        new(-0.5, -0.5, 0.5),
+        new(-0.5, 0.5, 0.5),
+        new(-0.5, 0.5, -0.5),
+        new(-0.5, -0.5, -0.5),
+        new(-0.5, -0.5, -0.5),
+        new(-0.5, -0.5, 0.5),
+        new(-0.5, 0.5, 0.5),
+        new(0.5, 0.5, 0.5),
+        new(0.5, 0.5, -0.5),
+        new(0.5, -0.5, -0.5),
+        new(0.5, -0.5, -0.5),
+        new(0.5, -0.5, 0.5),
+        new(0.5, 0.5, 0.5),
+        new(-0.5, -0.5, -0.5),
+        new(0.5, -0.5, -0.5),
+        new(0.5, -0.5, 0.5),
+        new(0.5, -0.5, 0.5),
+        new(-0.5, -0.5, 0.5),
+        new(-0.5, -0.5, -0.5),
+        new(-0.5, 0.5, -0.5),
+        new(0.5, 0.5, -0.5),
+        new(0.5, 0.5, 0.5),
+        new(0.5, 0.5, 0.5),
+        new(-0.5, 0.5, 0.5),
+        new(-0.5, 0.5, -0.5),
+    };
 
-        Points = new Point[]
-        {
-            new(-0.5, -0.5, -0.5),
-            new(0.5, -0.5, -0.5),
-            new(0.5, 0.5, -0.5),
-            new(0.5, 0.5, -0.5),
-            new(-0.5, 0.5, -0.5),
-            new(-0.5, -0.5, -0.5),
-            new(-0.5, -0.5, 0.5),
-            new(0.5, -0.5, 0.5),
-            new(0.5, 0.5, 0.5),
-            new(0.5, 0.5, 0.5),
-            new(-0.5, 0.5, 0.5),
-            new(-0.5, -0.5, 0.5),
-            new(-0.5, 0.5, 0.5),
-            new(-0.5, 0.5, -0.5),
-            new(-0.5, -0.5, -0.5),
-            new(-0.5, -0.5, -0.5),
-            new(-0.5, -0.5, 0.5),
-            new(-0.5, 0.5, 0.5),
-            new(0.5, 0.5, 0.5),
-            new(0.5, 0.5, -0.5),
-            new(0.5, -0.5, -0.5),
-            new(0.5, -0.5, -0.5),
-            new(0.5, -0.5, 0.5),
-            new(0.5, 0.5, 0.5),
-            new(-0.5, -0.5, -0.5),
-            new(0.5, -0.5, -0.5),
-            new(0.5, -0.5, 0.5),
-            new(0.5, -0.5, 0.5),
-            new(-0.5, -0.5, 0.5),
-            new(-0.5, -0.5, -0.5),
-            new(-0.5, 0.5, -0.5),
-            new(0.5, 0.5, -0.5),
-            new(0.5, 0.5, 0.5),
-            new(0.5, 0.5, 0.5),
-            new(-0.5, 0.5, 0.5),
-            new(-0.5, 0.5, -0.5),
-        };
+    public Color4[] Colors { get; } = { Color4.Black };
+    public uint[]? Indices => null;
 
-        Colors = new Color4[] { Color4.Black };
-        Indices = null;
-    }
-    
     public void BoundingBox(out Point leftBottom, out Point rightTop)
     {
         var minX = Points.MinBy(p => p.X).X;

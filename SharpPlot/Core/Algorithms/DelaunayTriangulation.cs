@@ -209,7 +209,8 @@ public static class Debugger
 
         foreach (var line in lines)
         {
-            var words = line.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
+            var lLine = line.Replace(',', '.');
+            var words = lLine.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
             points.Add(new Point
             {
                 X = words[0],

@@ -26,6 +26,4 @@ public class Camera2D : AbstractCamera
 
     public override void Move(double dx, double dy)
         => Projection.Translate(dx, dy);
-
-    public override void Rotate(double ox, double oy, double oz, double angle) {}
 }
