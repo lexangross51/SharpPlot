@@ -15,16 +15,16 @@ namespace SharpPlot.Render;
 
 public class Viewport2DRenderer
 {
-    private readonly ShaderProgram _borderShader, _axesShader;
+    private ShaderProgram _borderShader = null!, _axesShader = null!;
     private RenderSettings _renderSettings;
     private readonly Camera2D _camera;
     private readonly int[] _viewport;
     private readonly double[] _multipliers = { 1, 2, 5, 10 };
     private readonly Axis _horizontalAxis;
     private readonly Axis _verticalAxis;
-    private readonly List<float> _points;
-    private readonly VertexArrayObject _vaoBorder, _vaoTicks;
-    private readonly VertexBufferObject<float> _vboTicks;
+    private List<float> _points = null!;
+    private VertexArrayObject _vaoBorder = null!, _vaoTicks = null!;
+    private VertexBufferObject<float> _vboTicks = null!;
 
     public string HAxisName
     {
@@ -39,7 +39,7 @@ public class Viewport2DRenderer
     }
 
     public SharpPlotFont Font { get; set; }
-    public bool DrawingGrid { get; set; } = false;
+    public bool DrawingGrid { get; set; }
 
     public Camera2D GetCamera() => _camera;
 
@@ -47,23 +47,28 @@ public class Viewport2DRenderer
 
     public Viewport2DRenderer(RenderSettings renderSettings, Camera2D camera)
     {
-        _borderShader = ShaderCollection.LineShader();
-        _axesShader = ShaderCollection.LineShader();
-
-        _horizontalAxis = new Axis("X");
-        _verticalAxis = new Axis("Y");
-
         _renderSettings = renderSettings;
         _camera = camera;
-        _viewport = new int[4];
-        _viewport = GetNewViewport(_renderSettings.ScreenSize);
-
-        _points = new List<float>();
-
+        
         Font = new SharpPlotFont
         {
             Color = Color.Black,
         };
+        
+        _horizontalAxis = new Axis("X");
+        _verticalAxis = new Axis("Y");
+        
+        _viewport = new int[4];
+        _viewport = GetNewViewport(_renderSettings.ScreenSize);
+        
+        InitShaders();
+    }
+
+    private void InitShaders()
+    {
+        _borderShader = ShaderCollection.LineShader();
+        _axesShader = ShaderCollection.LineShader();
+        _points = new List<float>();
 
         // Border settings will only be set once
         _vaoBorder = new VertexArrayObject();
@@ -91,6 +96,9 @@ public class Viewport2DRenderer
         }
 
         _axesShader.Use();
+        _axesShader.SetUniform("model", Matrix4.Identity);
+        _axesShader.SetUniform("view", Matrix4.Identity);
+        _axesShader.SetUniform("projection", Matrix4.Identity);
         _vaoTicks = new VertexArrayObject();
         _vboTicks = new VertexBufferObject<float>(_points.ToArray(), BufferUsageHint.DynamicDraw);
         _vaoTicks.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
@@ -111,9 +119,7 @@ public class Viewport2DRenderer
     public void UpdateView()
     {
         GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-
-        _axesShader.SetUniform("model", _camera.GetModelMatrix());
-        _axesShader.SetUniform("view", _camera.GetViewMatrix());
+        
         _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
     }
 
@@ -157,6 +163,7 @@ public class Viewport2DRenderer
         
         _vaoBorder.Bind();
         _borderShader.Use();
+        _borderShader.SetUniform("projection", Matrix4.CreateOrthographicOffCenter(-1, 1, -1, 1, -1, 1));
         _borderShader.GetUniformLocation("lineColor", out var location);
         _borderShader.SetUniform(location, 0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -205,9 +212,9 @@ public class Viewport2DRenderer
         _vboTicks.UpdateData(_points.ToArray());
         _vaoTicks.Bind();
         _axesShader.Use();
+        _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
         _axesShader.GetUniformLocation("lineColor", out var location);
         _axesShader.SetUniform(location, 0.0f, 0.0f, 0.0f, 1.0f);
-        _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
 
         GL.LineWidth(2);
         GL.DrawArrays(PrimitiveType.Lines, 0, _points.Count / 3);
@@ -275,9 +282,9 @@ public class Viewport2DRenderer
         _vboTicks.UpdateData(_points.ToArray());
         _vaoTicks.Bind();
         _axesShader.Use();
+        _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
         _axesShader.GetUniformLocation("lineColor", out var location);
         _axesShader.SetUniform(location, 0.0f, 0.0f, 0.0f, 1.0f);
-        _axesShader.SetUniform("projection", _camera.GetProjectionMatrix());
 
         GL.LineWidth(2);
         GL.DrawArrays(PrimitiveType.Lines, 0, _points.Count / 3);
@@ -339,7 +346,9 @@ public class Viewport2DRenderer
         _vboTicks.UpdateData(_points.ToArray());
         _vaoTicks.Bind();
         _axesShader.Use();
+        
         UpdateView();
+        
         _axesShader.GetUniformLocation("lineColor", out var location);
         _axesShader.SetUniform(location, 0.7f, 0.7f, 0.7f, 1.0f);
 

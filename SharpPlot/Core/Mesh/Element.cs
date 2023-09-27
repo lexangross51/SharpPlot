@@ -11,8 +11,10 @@ public class Element
     public Element(int[] nodes)
     {
         Nodes = nodes;
-        Edges = new Edge[3];
-        Array.Sort(Nodes);
+        Edges = new Edge[Nodes.Length];
+        
+        if (Nodes.Length == 3)
+            Array.Sort(Nodes);
         
         MakeEdges();
     }

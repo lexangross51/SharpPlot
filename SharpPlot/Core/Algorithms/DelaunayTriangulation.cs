@@ -293,4 +293,30 @@ public static class Debugger
 
         return points;
     }
+
+    public static void ReadMesh(string pointsFile, string elementsFile, out List<Point> points,
+        out List<Element> elements)
+    {
+        points = new List<Point>();
+        elements = new List<Element>();
+        
+        var lines = File.ReadAllLines(pointsFile);
+        foreach (var line in lines)
+        {
+            var lLine = line.Replace(',', '.');
+            var words = lLine.Split().Select(val => double.Parse(val, CultureInfo.InvariantCulture)).ToArray();
+            points.Add(new Point
+            {
+                X = words[0],
+                Y = words[1],
+            });
+        }
+        
+        lines = File.ReadAllLines(elementsFile);
+        foreach (var line in lines)
+        {
+            var words = line.Split(' ', '\t', '\n');
+            elements.Add(new Element(words.Where(word => word != "").Select(int.Parse).ToArray()));
+        }
+    }
 }

@@ -130,7 +130,7 @@ public static class MathHelper
         var t = (v - v1) / (v2 - v1);
         var x = p1.X + t * (p2.X - p1.X);
         var y = p1.Y + t * (p2.Y - p1.Y);
-        return new Point(x, y);
+        return new Point(x, y, v);
     }
     
     public static List<Point> MakeRegularPolygon(int verticesCount, Point center, double radius)

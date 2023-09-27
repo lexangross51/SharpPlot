@@ -29,6 +29,7 @@ public class Palette
     }
 
     public Color4 this[int index] => _colorStorage[index];
+    public Color4 this[Index index] => _colorStorage[index];
 
     public void AddColor(Color4 color)
     {

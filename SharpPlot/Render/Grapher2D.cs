@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using SharpPlot.Camera;
 using SharpPlot.Objects;
 using SharpPlot.Shaders;
@@ -36,6 +37,16 @@ public class BaseGraphic2D : IRenderContext
         
         _renderSettings = renderSettings;
         _camera = camera;
+        
+        _lineShader.Use();
+        _lineShader.SetUniform("model", Matrix4.Identity);
+        _lineShader.SetUniform("view", Matrix4.Identity);
+        _lineShader.SetUniform("projection", Matrix4.Identity);
+        
+        _fieldShader.Use();
+        _fieldShader.SetUniform("model", Matrix4.Identity);
+        _fieldShader.SetUniform("view", Matrix4.Identity);
+        _fieldShader.SetUniform("projection", Matrix4.Identity);
     }
     
     public int[] GetNewViewport(ScreenSize newScreenSize)
@@ -54,11 +65,10 @@ public class BaseGraphic2D : IRenderContext
     public void UpdateView()
     {
         GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-        _lineShader.SetUniform("model", _camera.GetModelMatrix());
-        _lineShader.SetUniform("view", _camera.GetViewMatrix());
+        
+        _lineShader.SetUniform("view", Matrix4.Identity);
         _lineShader.SetUniform("projection", _camera.GetProjectionMatrix());
-        _fieldShader.SetUniform("model", _camera.GetModelMatrix());
-        _fieldShader.SetUniform("view", _camera.GetViewMatrix());
+        _fieldShader.SetUniform("view", Matrix4.Identity);
         _fieldShader.SetUniform("projection", _camera.GetProjectionMatrix());
     }
     
@@ -77,11 +87,12 @@ public class BaseGraphic2D : IRenderContext
             {
                 data[index++] = (float)p.X;
                 data[index++] = (float)p.Y;
-                data[index++] = (float)p.Z;
+                data[index++] = 0.0f/*(float)p.Z*/;
             }
             
             var vao = new VertexArrayObject();
             var vbo = new VertexBufferObject<float>(data);
+            
             _lineShader.Use();
             _lineShader.GetAttribLocation("position", out var location);
             vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
@@ -103,7 +114,7 @@ public class BaseGraphic2D : IRenderContext
             {
                 data[index++] = (float)points[i].X;
                 data[index++] = (float)points[i].Y;
-                data[index++] = (float)points[i].Z;
+                data[index++] = 0.0f/*(float)points[i].Z*/;
                 data[index++] = colors[i].R;
                 data[index++] = colors[i].G;
                 data[index++] = colors[i].B;
@@ -111,6 +122,7 @@ public class BaseGraphic2D : IRenderContext
                 
             var vao = new VertexArrayObject();
             var vbo = new VertexBufferObject<float>(data);
+            
             _fieldShader.Use();
             _fieldShader.GetAttribLocation("position", out var location);
             vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);

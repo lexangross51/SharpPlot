@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
 using SharpPlot.Core.Algorithms;
+using SharpPlot.Core.Colorbar;
 using SharpPlot.Core.Isolines;
 using SharpPlot.Core.Mesh;
 using SharpPlot.Core.Palette;
@@ -64,9 +66,10 @@ public sealed partial class Scene2D
 
         GL.ClearColor(Color.White);
         
+        // Debugger.ReadMesh("points", "elements", out var points, out var elements);
         // Debugger.ReadData("points", out var points);
         // Debugger.ReadData("points", "values", out var points, out var values);
-        // Debugger.ReadData("spline", out var points, out var values);
+        Debugger.ReadData("spline", out var points, out var values);
         // for (var i = 0; i < points.Count; i++)
         // {
         //     var point = points[i];
@@ -79,17 +82,22 @@ public sealed partial class Scene2D
         // var values = Debugger.GenerateRandomData(2000);
         // var delaunay = new DelaunayTriangulation();
         // var mesh = delaunay.Triangulate(points);
-        // _baseGraphic.AddObject(new ContourF(points, values, Palette.RainbowReverse, 20));
-        // // _baseGraphic.AddObject(mesh);
+        // _baseGraphic.AddObject(new Mesh(points, elements));
         // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Rainbow));
-        // _baseGraphic.AddObject(new Contour(points, values, 30));
+        _baseGraphic.AddObject(new Contour(points, values, 20));
+        // var colorbar = new Colorbar(values, Palette.Rainbow)
+        // {
+        //     VerticalAlignment = VerticalAlignment.Bottom,
+        //     HorizontalAlignment = HorizontalAlignment.Right,
+        // };
+        // MainGrid.Children.Add(colorbar);
+        
+        // _baseGraphic.AddObject(new Mesh(points, elements));
     }
 
     private void OnRender(TimeSpan obj)
     {
-        GL.Disable(EnableCap.DepthTest);
         GL.Clear(ClearBufferMask.ColorBufferBit);
-        // GL.Clear(ClearBufferMask.DepthBufferBit);
 
         _baseGraphic.DrawObjects();
         _viewPortRenderer.RenderAxis();

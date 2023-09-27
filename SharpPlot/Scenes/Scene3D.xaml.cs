@@ -2,16 +2,14 @@
 using System.Drawing;
 using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using OpenTK.Wpf;
 using SharpPlot.Camera;
 using SharpPlot.Core.Algorithms;
-using SharpPlot.Core.Mesh;
-using SharpPlot.Core.Palette;
 using SharpPlot.Core.Primitives;
 using SharpPlot.Render;
 using SharpPlot.Text;
 using SharpPlot.Viewport;
+using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace SharpPlot.Scenes;
 
@@ -50,7 +48,8 @@ public partial class Scene3D
             }
         };
 
-        var camera = new Camera3D(new PerspectiveProjection(width / height), new Vector3(0, 5, -3), new Vector3(0, 0, 0));
+        // var camera = new Camera3D(new PerspectiveProjection(width / height), Vector3.Zero, Vector3.Zero);
+        var camera = new Camera3D(new OrthographicProjection(new double[] { -3, 3, -3, 3, -3, 3 }, height / width), Vector3.Zero, Vector3.Zero);
 
         _viewPortRenderer = new Viewport3DRenderer(renderSettings, camera) { Font = font };
         _baseGraphic = new BaseGraphic3D(renderSettings, camera);
@@ -58,16 +57,27 @@ public partial class Scene3D
         GL.ClearColor(Color.White);
         
         // Debugger.ReadData("spline", out var points, out var values);
-        // var delaunay = new DelaunayTriangulation();
-        // var mesh = delaunay.Triangulate(points);
         // for (int i = 0; i < points.Count; i++)
         // {
-        //     mesh.Points[i].Z = values[i];
+        //     var p = points[i];
+        //     p.Z = values[i];
+        //     points[i] = p;
         // }
+        // Debugger.ReadData("HTop.dat", out var points, out var values);
+        // for (var i = 0; i < points.Count; i++)
+        // {
+        //     var point = points[i];
+        //     point.X -= 2139000;
+        //     point.Y -= 6540000;
+        //     point.Z = values[i];
+        //     points[i] = point;
+        // }
+        // var delaunay = new DelaunayTriangulation();
+        // var mesh = delaunay.Triangulate(points);
         //
-        // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Autumn));
+        // _baseGraphic.AddObject(new ColorMap(mesh, values, Palette.Rainbow));
         // _baseGraphic.AddObject(mesh);
-        _baseGraphic.AddObject(new Cube());
+        // _baseGraphic.AddObject(new Cube());
     }
 
     private void OnRender(TimeSpan obj)
@@ -103,6 +113,7 @@ public partial class Scene3D
 
         var pos = e.GetPosition(this);
         _viewPortRenderer.GetCamera().Move((float)pos.X, (float)pos.Y);
+        _viewPortRenderer.UpdateView();
         GlControl.InvalidateVisual();
     }
     

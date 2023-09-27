@@ -7,7 +7,7 @@ namespace SharpPlot.Camera;
 public class Camera3D : AbstractCamera
 {
     private Vector3 _position;
-    private readonly Vector3 _target;
+    private Vector3 _target;
     private double _fov;
     private float _yaw;
     private float _pitch;
@@ -20,6 +20,30 @@ public class Camera3D : AbstractCamera
 
     public bool FirstMouse { get; set; }
     public float Sensitivity { get; set; }
+
+    public Vector3 Position
+    {
+        get => _position;
+        set => _position = value;
+    }
+    
+    public Vector3 Target
+    {
+        get => _target;
+        set
+        {
+            _target = value;
+            _front.X = _target.X - _position.X;
+            _front.Y = _target.Y - _position.Y;
+            _front.Z = _target.Z - _position.Z;
+            _distance = _front.Length;
+        }
+    }
+
+    public double Fov => _fov;
+    
+    public float ZBufferNear { get; set; }
+    public float ZBufferFar { get; set; }
     
     public Camera3D(IProjection projection, Vector3 pos, Vector3 target) : base(projection)
     {
@@ -29,7 +53,7 @@ public class Camera3D : AbstractCamera
         _front = new Vector3(target.X - pos.X, target.Y - pos.Y, target.Z - pos.Z);
         _worldUp = new Vector3(0.0f, 1.0f, 0.0f);
         _up = new Vector3(0.0f, 1.0f, 0.0f);
-        _yaw = -90.0f;
+        _yaw = 90.0f;
         _pitch = 0.0f;
         _lastX = _lastY = 0.0f;
         _distance = Vector3.Distance(_target, _position);
@@ -42,26 +66,45 @@ public class Camera3D : AbstractCamera
     
     public override Matrix4 GetModelMatrix()
     {
-        return Matrix4.CreateRotationX(MathHelper.PiOver2);
+        // return Matrix4.CreateRotationX(MathHelper.PiOver2);
+        return Matrix4.Identity;
     }
 
     public override Matrix4 GetViewMatrix()
     {
         return Matrix4.LookAt(_position.X, _position.Y, _position.Z, 
-            _position.X + _front.X, _position.Y + _front.Y, _position.Z + _front.Z, 
+            _target.X, _target.Y, _target.Z,
             _up.X, _up.Y, _up.Z);
     }
 
     public override Matrix4 GetProjectionMatrix()
     {
-        return Matrix4.CreatePerspectiveFieldOfView((float)MathHelper.DegreesToRadians(_fov), 
-            (float)Projection.Ratio, 0.01f, 100.0f);
+        // return Matrix4.CreatePerspectiveFieldOfView((float)MathHelper.DegreesToRadians(_fov), 
+        //     (float)Projection.Ratio, ZBufferNear, ZBufferFar);
+        
+        var proj = Projection.GetProjection();
+        return Matrix4.CreateOrthographicOffCenter(
+            (float)proj[0], (float)proj[1],
+            (float)proj[2], (float)proj[3],
+            (float)proj[4], (float)proj[5]);
+        
+        // return Matrix4.CreatePerspectiveOffCenter((float)proj[0], (float)proj[1],
+        //         (float)proj[2], (float)proj[3],
+        //         0.01f, (float)proj[5]);
     }
 
     public override void Zoom(double xPivot, double yPivot, double delta)
     {
-        if (delta > 0) _fov *= 1.0 / 1.05;
-        else _fov *= 1.05;
+        // if (delta > 0)
+        // {
+        //     _fov *= 1.0 / 1.05;
+        // }
+        // else
+        // {
+        //     _fov *= 1.05; 
+        //     _fov = _fov >= 179.0f ? 179.0f : _fov;
+        // }
+        Projection.Scale(_target.X, _target.Y, delta);
     }
 
     public override void Move(double xPos, double yPos)
@@ -94,20 +137,21 @@ public class Camera3D : AbstractCamera
     {
         var radYaw = MathHelper.DegreesToRadians(_yaw);
         var radPitch = MathHelper.DegreesToRadians(_pitch);
-
+        
         var cosYaw = Math.Cos(radYaw);
         var sinYaw = Math.Sin(radYaw);
         var cosPitch = Math.Cos(radPitch);
         var sinPitch = Math.Sin(radPitch);
-
-        var front = new Vector3((float)(cosYaw * cosPitch), (float)sinPitch, (float)(sinYaw * cosPitch));
         
-        _front = Vector3.Normalize(front);
+        _front.X = (float)(cosYaw * cosPitch);
+        _front.Y = (float)sinPitch;
+        _front.Z = (float)(sinYaw * cosPitch);
+        _front = Vector3.Normalize(_front);
         _right = Vector3.Normalize(Vector3.Cross(_front, _worldUp));
         _up = Vector3.Normalize(Vector3.Cross(_right, _front));
         
-        _position.X = _target.X - _distance * _front.X;
-        _position.Y = _target.Y - _distance * _front.Y;
-        _position.Z = _target.Z - _distance * _front.Z;
+        _position.X = _target.X - 0.1f * _front.X;
+        _position.Y = _target.Y - 0.1f * _front.Y;
+        _position.Z = _target.Z - 0.1f * _front.Z;
     }
 }

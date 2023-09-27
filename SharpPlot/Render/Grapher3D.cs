@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using SharpPlot.Camera;
 using SharpPlot.Objects;
 using SharpPlot.Shaders;
@@ -33,6 +35,10 @@ public class BaseGraphic3D : IRenderContext
             (int)_renderSettings.ScreenSize.Width,
             (int)_renderSettings.ScreenSize.Height
         };
+        
+        _lineShader.Use();
+        _lineShader.SetUniform("model", Matrix4.Identity);
+        _fieldShader.SetUniform("model", Matrix4.Identity);
     }
 
     public void AddObject(IBaseObject obj)
@@ -42,15 +48,28 @@ public class BaseGraphic3D : IRenderContext
         var indices = obj.Indices;
         float[] data;
         
+        // Update projection
+        obj.BoundingBox(out var lb, out var rt);
+        float dx = (float)(rt.X - lb.X);
+        float dy = (float)(rt.Y - lb.Y);
+        float dz = (float)(rt.Z - lb.Z);
+        
+        // _camera.GetProjection().SetProjection(new[] { lb.X - dx, rt.X + dx, lb.Y - dy, rt.Y + dy, lb.Z - dz, rt.Z + dz });
+        _camera.GetProjection().SetProjection(new[] { -10.0, 10.0, -10.0, 10.0, -10.0, 10.0, });
+        
+        double xMean = (lb.X + rt.X) / 2.0;
+        double yMean = (lb.Y + rt.Y) / 2.0;
+        double zMean = (lb.Z + rt.Z) / 2.0;
+        
         if (colors.Length == 1)
         {
             data = new float[points.Length * 3];
             uint index = 0;
             foreach (var p in points)
             {
-                data[index++] = (float)p.X;
-                data[index++] = (float)p.Y;
-                data[index++] = (float)p.Z;
+                data[index++] = (float)(p.X - xMean);
+                data[index++] = (float)(p.Y - yMean);
+                data[index++] = (float)(p.Z - zMean);
             }
             
             var vao = new VertexArrayObject();
@@ -74,9 +93,9 @@ public class BaseGraphic3D : IRenderContext
             uint index = 0;
             for (var i = 0; i < points.Length; i++)
             {
-                data[index++] = (float)points[i].X;
-                data[index++] = (float)points[i].Y;
-                data[index++] = (float)points[i].Z;
+                data[index++] = (float)(points[i].X - xMean);
+                data[index++] = (float)(points[i].Y - yMean);
+                data[index++] = (float)(points[i].Z - zMean);
                 data[index++] = colors[i].R;
                 data[index++] = colors[i].G;
                 data[index++] = colors[i].B;
@@ -100,9 +119,8 @@ public class BaseGraphic3D : IRenderContext
             _context.Add(obj, vao);
         }
         
-        // // Update projection
-        // obj.BoundingBox(out var lb, out var rt);
-        // _camera.GetProjection().SetProjection(new[] { lb.X, rt.X, lb.Y, rt.Y, -1.0, 1.0 });
+        _camera.Position = new Vector3(0, 0, -1);
+        _camera.Target = Vector3.Zero;
     }
 
     public void DrawObjects()
@@ -168,12 +186,10 @@ public class BaseGraphic3D : IRenderContext
     public void UpdateView()
     {        
         GL.Viewport(_viewport[0], _viewport[1], _viewport[2], _viewport[3]);
-        _lineShader.SetUniform("model", _camera.GetModelMatrix());
-        _lineShader.SetUniform("view", _camera.GetViewMatrix());
         _lineShader.SetUniform("projection", _camera.GetProjectionMatrix());
-        _fieldShader.SetUniform("model", _camera.GetModelMatrix());
-        _fieldShader.SetUniform("view", _camera.GetViewMatrix());
+        _lineShader.SetUniform("view", _camera.GetViewMatrix());
         _fieldShader.SetUniform("projection", _camera.GetProjectionMatrix());
+        _fieldShader.SetUniform("view", _camera.GetViewMatrix());
     }
 
     public int[] GetNewViewport(ScreenSize newScreenSize)

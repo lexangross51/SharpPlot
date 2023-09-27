@@ -90,7 +90,7 @@ public sealed partial class MainWindow
         
         foreach (var scene in _scenes2D)
         {
-            scene.OnChangeSize(new ScreenSize { Width = controlWidth, Height = controlHeight });
+            scene.OnChangeSize(new ScreenSize { Width = controlWidth + 60, Height = controlHeight });
         }
 
         _scene3D.OnChangeSize(new ScreenSize { Width = e.NewSize.Width - 26, Height = e.NewSize.Height - 85 });

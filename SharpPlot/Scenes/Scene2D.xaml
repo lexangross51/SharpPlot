@@ -6,7 +6,7 @@
              mc:Ignorable="d"
              xmlns:local="clr-namespace:OpenTK.Wpf;assembly=GLWpfControl"
              d:DesignHeight="300" d:DesignWidth="600">
-    <Grid>
+    <Grid x:Name="MainGrid">
         <local:GLWpfControl x:Name="GlControl"
                             Render="OnRender"
                             MouseMove="OnMouseMove"

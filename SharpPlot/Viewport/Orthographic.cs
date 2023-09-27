@@ -8,6 +8,8 @@ public class OrthographicProjection : IProjection
     private readonly bool _isEqualScale;
     private double _oldHorizontalCenter, _oldVerticalCenter;
     private double _oldWidth, _oldHeight;
+    private double _zCenter;
+    private double _zBuffer;
     private double[] _projection;
     private double DHorizontal => Width / 2.0;
     private double DVertical => _isEqualScale ? DHorizontal * Ratio : Height / 2.0;
@@ -30,8 +32,8 @@ public class OrthographicProjection : IProjection
     public void SetProjection(double[] projection)
     {
         _projection = projection;
-        HorizontalCenter = (projection[0] + projection[1]) / 2.0;
-        VerticalCenter = (projection[2] + projection[3]) / 2.0;
+        HorizontalCenter = (projection[0] + projection[1]) * 0.5;
+        VerticalCenter = (projection[2] + projection[3]) * 0.5;
         Width = projection[1] - projection[0];
         Height = projection[3] - projection[2];
 
@@ -39,6 +41,9 @@ public class OrthographicProjection : IProjection
         _oldVerticalCenter = VerticalCenter;
         _oldWidth = Width;
         _oldHeight = Height;
+
+        _zCenter = (projection[4] + projection[5]) * 0.5;
+        _zBuffer = (projection[5] - projection[4]) * 0.5;
     }
 
     public double[] GetProjection()
@@ -47,8 +52,8 @@ public class OrthographicProjection : IProjection
         _projection[1] = HorizontalCenter + DHorizontal;
         _projection[2] = VerticalCenter - DVertical;
         _projection[3] = VerticalCenter + DVertical;
-        _projection[4] = -1.0;
-        _projection[5] = 1.0;
+        _projection[4] = _zCenter - _zBuffer;
+        _projection[5] = _zCenter + _zBuffer;
         
         return _projection;
     }

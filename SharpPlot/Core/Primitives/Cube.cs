@@ -51,7 +51,7 @@ public class Cube : IBaseObject
 
     public Color4[] Colors { get; } = { Color4.Black };
     public uint[]? Indices => null;
-
+    
     public void BoundingBox(out Point leftBottom, out Point rightTop)
     {
         var minX = Points.MinBy(p => p.X).X;

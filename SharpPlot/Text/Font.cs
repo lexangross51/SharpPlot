@@ -14,7 +14,7 @@ public struct SharpPlotFont
 
     public SharpPlotFont()
     {
-        FontFamily = "Calibri";
+        FontFamily = "Times New Roman";
         Size = 12;
         Color = Color.Black;
         Style = FontStyle.Regular;

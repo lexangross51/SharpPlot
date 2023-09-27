@@ -37,8 +37,10 @@ public class Contour : IBaseObject
         var maxX = Points.MaxBy(p => p.X).X;
         var minY = Points.MinBy(p => p.Y).Y;
         var maxY = Points.MaxBy(p => p.Y).Y;
+        var minZ = Points.MinBy(p => p.Z).Z;
+        var maxZ = Points.MaxBy(p => p.Z).Z;
 
-        leftBottom = new Point(minX, minY);
-        rightTop = new Point(maxX, maxY);
+        leftBottom = new Point(minX, minY, minZ);
+        rightTop = new Point(maxX, maxY, maxZ);
     }
 }
