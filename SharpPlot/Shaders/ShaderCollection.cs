@@ -12,4 +12,7 @@ public static class ShaderCollection
 
     public static ShaderProgram FieldShader()
         => new("Shaders//FieldShader.vert", "Shaders//FieldShader.frag");
+    
+    public static ShaderProgram IsolineShader()
+        => new("Shaders//IsoShader.vert", "Shaders//IsoShader.frag");
 }

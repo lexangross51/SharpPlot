@@ -20,13 +20,16 @@ public class Texture : IDisposable
         _rectangle = new Rectangle();
     }
 
-    public Texture(string path)
+    private Texture()
     {
         _handle = GL.GenTexture();
 
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, _handle);
-
+    }
+    
+    public Texture(string path) : this()
+    {
         using (var stream = File.OpenRead(path))
         {
             var image = ImageResult.FromStream(stream, ColorComponents.RedGreenBlueAlpha);
@@ -41,13 +44,8 @@ public class Texture : IDisposable
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
     }
 
-    public Texture(Bitmap image)
+    public Texture(Bitmap image) : this()
     {
-        _handle = GL.GenTexture();
-        
-        GL.ActiveTexture(TextureUnit.Texture0);
-        GL.BindTexture(TextureTarget.Texture2D, _handle);
-
         _rectangle.Height = image.Height;
         _rectangle.Width = image.Width;
         
@@ -71,6 +69,18 @@ public class Texture : IDisposable
 
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+    }
+    public static Texture CreateFromData(float[,] data)
+    {
+        var texture = new Texture();
+
+        GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, data.GetLength(0), data.GetLength(1), 0,
+            PixelFormat.Red, PixelType.Float, data);
+        
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear);
+        
+        return texture;
     }
     
     public void Use(TextureUnit unit = TextureUnit.Texture0)

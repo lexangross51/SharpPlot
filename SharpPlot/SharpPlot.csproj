@@ -10,7 +10,6 @@
 
     <ItemGroup>
       <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.2" />
-      <PackageReference Include="Speckle.Triangle" Version="1.0.0" />
       <PackageReference Include="StbImageSharp" Version="2.27.13" />
     </ItemGroup>
 
@@ -31,6 +30,12 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Shaders\FieldShader.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\IsoShader.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\IsoShader.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
 

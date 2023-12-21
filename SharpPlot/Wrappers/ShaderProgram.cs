@@ -66,6 +66,12 @@ public sealed class ShaderProgram : IDisposable
     public void SetUniform(string name, int value)
         => GL.Uniform1(_uniforms[name], value);
     
+    public void SetUniform(string name, float value)
+        => GL.Uniform1(_uniforms[name], value);
+    
+    public void SetUniform(string name, float[] array)
+        => GL.Uniform4(_uniforms[name], array.Length / 4, array);
+    
     public void SetUniform(string name, Matrix4 matrix)
         => GL.UniformMatrix4(_uniforms[name], true, ref matrix);
     

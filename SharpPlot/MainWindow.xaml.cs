@@ -23,7 +23,7 @@ public sealed partial class MainWindow
         _columnsCount = 1;
 
         _scenes2D = new List<Scene2D>();
-        _scene3D = new Scene3D(Width - 20, Height - 30);
+        // _scene3D = new Scene3D(Width - 20, Height - 30);
         
         PrepareMainForm();
     }
@@ -72,12 +72,11 @@ public sealed partial class MainWindow
             }
         }
 
-
-        MainGrid3D.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        MainGrid3D.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        Grid.SetRow(_scene3D, 0);
-        Grid.SetColumn(_scene3D, 0);
-        MainGrid3D.Children.Add(_scene3D);
+        // MainGrid3D.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        // MainGrid3D.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        // Grid.SetRow(_scene3D, 0);
+        // Grid.SetColumn(_scene3D, 0);
+        // MainGrid3D.Children.Add(_scene3D);
     }
 
     private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -90,9 +89,9 @@ public sealed partial class MainWindow
         
         foreach (var scene in _scenes2D)
         {
-            scene.OnChangeSize(new ScreenSize { Width = controlWidth + 60, Height = controlHeight });
+            scene.OnChangeSize(new ScreenSize { Width = controlWidth + 59, Height = controlHeight + 2 });
         }
 
-        _scene3D.OnChangeSize(new ScreenSize { Width = e.NewSize.Width - 26, Height = e.NewSize.Height - 85 });
+        // _scene3D.OnChangeSize(new ScreenSize { Width = e.NewSize.Width - 26, Height = e.NewSize.Height - 85 });
     }
 }
