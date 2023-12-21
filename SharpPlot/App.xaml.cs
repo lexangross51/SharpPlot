@@ -1,7 +1,5 @@
-﻿using System.Windows;
+﻿namespace SharpPlot;
 
-namespace SharpPlot;
-
-public partial class App : Application
+public partial class App
 {
 }

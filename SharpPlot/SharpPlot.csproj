@@ -2,52 +2,16 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net7.0-windows</TargetFramework>
+        <TargetFramework>net8.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <UseWPF>true</UseWPF>
         <UseWindowsForms>True</UseWindowsForms>
+        <LangVersion>default</LangVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.2" />
       <PackageReference Include="StbImageSharp" Version="2.27.13" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="Shaders\LineShader.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\LineShader.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\TextShader.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\TextShader.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\FieldShader.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\FieldShader.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\IsoShader.frag">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Shaders\IsoShader.vert">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-
-
-
-
-
-
-
-
-
-
     </ItemGroup>
 
 
