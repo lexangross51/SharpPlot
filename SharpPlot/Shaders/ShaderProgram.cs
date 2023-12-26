@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using OpenTK.Graphics.OpenGL4;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL4;
 
 namespace SharpPlot.Shaders;
 
