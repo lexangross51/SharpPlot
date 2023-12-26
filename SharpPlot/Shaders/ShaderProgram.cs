@@ -16,24 +16,24 @@ public sealed class ShaderProgram : IDisposable
     {
         _handle = GL.CreateProgram();
         
-        var vertexShaderSource = File.ReadAllText(vertexShaderPath);
-        var fragmentShaderSource = File.ReadAllText(fragmentShaderPath);
-        var geometryShaderSource = geometryShaderPath != null 
+        string vertexShaderSource = File.ReadAllText(vertexShaderPath);
+        string fragmentShaderSource = File.ReadAllText(fragmentShaderPath);
+        string? geometryShaderSource = geometryShaderPath != null 
             ? File.ReadAllText(geometryShaderPath) 
             : null;
 
         int vertexShader = CompileShader(ShaderType.VertexShader, vertexShaderSource);
         int fragmentShader = CompileShader(ShaderType.FragmentShader, fragmentShaderSource);
-        int? geometryShader = geometryShaderSource != null
+        int geometryShader = geometryShaderSource != null
             ? CompileShader(ShaderType.GeometryShader, geometryShaderSource)
-            : null;
+            : -1;
         
         GL.AttachShader(_handle, vertexShader);
         GL.AttachShader(_handle, fragmentShader);
         
-        if (geometryShader != null)
+        if (geometryShader != -1)
         {
-            GL.AttachShader(_handle, geometryShader.Value);
+            GL.AttachShader(_handle, geometryShader);
         }
         
         GL.LinkProgram(_handle);
@@ -42,6 +42,22 @@ public sealed class ShaderProgram : IDisposable
         if (status != 1)
         {
             throw new Exception($"Program link error: {GL.GetProgramInfoLog(_handle)}");
+        }
+        
+        GL.DetachShader(_handle, vertexShader);
+        GL.DetachShader(_handle, fragmentShader);
+        
+        if (geometryShader != -1)
+        {
+            GL.DetachShader(_handle, geometryShader);
+        }
+        
+        GL.DeleteShader(vertexShader);
+        GL.DeleteShader(fragmentShader);
+
+        if (geometryShader != -1)
+        {
+            GL.DeleteShader(geometryShader);
         }
 
         _uniforms = new Dictionary<string, int>();
@@ -63,7 +79,7 @@ public sealed class ShaderProgram : IDisposable
         Console.WriteLine("GPU resources leak! Did you forget to call Dispose()");
     }
     
-    private int CompileShader(ShaderType shaderType, string shaderSource)
+    private static int CompileShader(ShaderType shaderType, string shaderSource)
     {
         int id = GL.CreateShader(shaderType);
         GL.ShaderSource(id, shaderSource);
@@ -77,6 +93,10 @@ public sealed class ShaderProgram : IDisposable
 
     public void Use() => GL.UseProgram(_handle);
 
+    // Attributes
+    public void GetAttributeLocation(string name, out int location)
+        => location = GL.GetAttribLocation(_handle, name);
+    
     // 1D uniforms
     public void SetUniform(string name, int value)
         => GL.Uniform1(_uniforms[name], value);
@@ -134,6 +154,7 @@ public sealed class ShaderProgram : IDisposable
         if (disposing)
         {
             GL.DeleteProgram(_handle);
+            _uniforms.Clear();
         }
 
         _isDisposed = true;
