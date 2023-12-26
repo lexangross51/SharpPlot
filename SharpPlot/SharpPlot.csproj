@@ -10,8 +10,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.2" />
-      <PackageReference Include="StbImageSharp" Version="2.27.13" />
+      <PackageReference Include="OpenTK.GLWpfControl" Version="4.2.3" />
+      <PackageReference Include="ReactiveUI" Version="19.5.31" />
     </ItemGroup>
 
 
