@@ -12,7 +12,7 @@ public sealed class ShaderProgram : IDisposable
     private readonly Dictionary<string, int> _uniforms;
     private bool _isDisposed;
 
-    public ShaderProgram(string vertexShaderPath, string fragmentShaderPath, string? geometryShaderPath)
+    public ShaderProgram(string vertexShaderPath, string fragmentShaderPath, string? geometryShaderPath = null)
     {
         _handle = GL.CreateProgram();
         
@@ -114,7 +114,7 @@ public sealed class ShaderProgram : IDisposable
     public void SetUniform(string name, float x, float y)
         => GL.Uniform2(_uniforms[name], x, y);
 
-    public void SetUniforms(string name, double x, double y)
+    public void SetUniform(string name, double x, double y)
         => GL.Uniform2(_uniforms[name], x, y);
 
     public void SetUniform(string name, Vector2 vector)
@@ -124,7 +124,7 @@ public sealed class ShaderProgram : IDisposable
     public void SetUniform(string name, float x, float y, float z)
         => GL.Uniform3(_uniforms[name], x, y, z);
 
-    public void SetUniforms(string name, double x, double y, double z)
+    public void SetUniform(string name, double x, double y, double z)
         => GL.Uniform3(_uniforms[name], x, y, z);
 
     public void SetUniform(string name, Vector3 vector)
@@ -145,6 +145,9 @@ public sealed class ShaderProgram : IDisposable
     
     public void SetUniform(string name, Vector4 vector)
         => GL.Uniform4(_uniforms[name], vector);
+
+    public void SetUniform(string name, Matrix4 matrix)
+        => GL.UniformMatrix4(_uniforms[name], true, ref matrix);
     
     // IDisposable implementation
     private void Dispose(bool disposing)
