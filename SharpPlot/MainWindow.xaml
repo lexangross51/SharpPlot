@@ -3,12 +3,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:view2D="clr-namespace:SharpPlot.Controls"
+        xmlns:controls="clr-namespace:SharpPlot.Drawing.Controls"
         mc:Ignorable="d"
         Title="SharpPlot"
         Width="800" Height="450"
         x:Name="MainForm">
     <Grid>
-        <view2D:View2D Width="800" Height="450"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        
+        <controls:View2D x:Name="View2D" Grid.Row="0" Margin="5" />
+        
+        <StatusBar Grid.Row="1">
+            <DockPanel>
+                <TextBlock Text="X:"/>
+                <TextBlock Text="{Binding ElementName=View2D, Path=XPosition, StringFormat={}{0:G3}}" Margin="5, 0"/>
+            </DockPanel>
+            
+            <DockPanel>
+                <TextBlock Text="Y:"/>
+                <TextBlock Text="{Binding ElementName=View2D, Path=YPosition, StringFormat={}{0:G3}}" Margin="5, 0"/>
+            </DockPanel>
+        </StatusBar>
     </Grid>
 </Window>

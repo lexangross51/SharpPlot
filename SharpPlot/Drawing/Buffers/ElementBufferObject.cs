@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL4;
 
-namespace SharpPlot.Buffers;
+namespace SharpPlot.Drawing.Buffers;
 
 public class ElementBufferObject : IDisposable
 {

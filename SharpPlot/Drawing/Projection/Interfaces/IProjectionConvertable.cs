@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
-using SharpPlot.Render;
+using SharpPlot.Drawing.Render;
 
-namespace SharpPlot.Projection.Interfaces;
+namespace SharpPlot.Drawing.Projection.Interfaces;
 
 public interface IProjectionConvertable
 {

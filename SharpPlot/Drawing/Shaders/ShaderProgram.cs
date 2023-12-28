@@ -1,10 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using OpenTK.Mathematics;
+using System.IO;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 
-namespace SharpPlot.Shaders;
+namespace SharpPlot.Drawing.Shaders;
 
 public sealed class ShaderProgram : IDisposable
 {

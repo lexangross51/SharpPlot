@@ -1,15 +1,41 @@
 ﻿using OpenTK.Mathematics;
-using SharpPlot.Projection.Interfaces;
-using SharpPlot.Render;
+using SharpPlot.Drawing.Projection.Interfaces;
+using SharpPlot.Drawing.Render;
 
-namespace SharpPlot.Projection.Implementations;
+namespace SharpPlot.Drawing.Projection.Implementations;
 
 public class OrthographicProjection : IProjection, IProjectionConvertable
 {
+    private readonly double[] _projectionArray = new double[6];
     private double _hCenter, _vCenter, _halfHStep, _halfVStep;
-    
-    public Matrix4 ProjectionMatrix { get; }
-    
+
+    public Matrix4 ProjectionMatrix => Matrix4.CreateOrthographicOffCenter(
+            (float)(_hCenter - _halfHStep),
+            (float)(_hCenter + _halfHStep),
+            (float)(_vCenter - _halfVStep),
+            (float)(_vCenter + _halfVStep),
+            -1.0f, 1.0f);
+
+    public OrthographicProjection(double left, double right, double bottom, double top, double near, double far)
+    {
+        _hCenter = 0.5 * (left + right);
+        _vCenter = 0.5 * (bottom + top);
+        _halfHStep = 0.5 * (right - left);
+        _halfVStep = 0.5 * (top - bottom);
+    }
+
+    public double[] ToArray()
+    {
+        _projectionArray[0] = _hCenter - _halfHStep;
+        _projectionArray[1] = _hCenter + _halfHStep;
+        _projectionArray[2] = _vCenter - _halfVStep;
+        _projectionArray[3] = _vCenter + _halfVStep;
+        _projectionArray[4] = -1.0f;
+        _projectionArray[5] = 1.0f;
+
+        return _projectionArray;
+    }
+
     public void Scale(double pivotX, double pivotY, double delta)
     {
         throw new System.NotImplementedException();
@@ -17,7 +43,8 @@ public class OrthographicProjection : IProjection, IProjectionConvertable
 
     public void Translate(double dx, double dy)
     {
-        throw new System.NotImplementedException();
+        _hCenter += dx;
+        _vCenter += dy;
     }
 
     public Vector3d FromWorldToProjection(double sx, double sy, RenderSettings settings)

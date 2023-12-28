@@ -1,4 +1,4 @@
-﻿namespace SharpPlot.Render;
+﻿namespace SharpPlot.Drawing.Render;
 
 public struct RenderSettings
 {

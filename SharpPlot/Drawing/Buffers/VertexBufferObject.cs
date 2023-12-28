@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL4;
 
-namespace SharpPlot.Buffers;
+namespace SharpPlot.Drawing.Buffers;
 
 public class VertexBufferObject<T> : IDisposable where T : struct
 {
