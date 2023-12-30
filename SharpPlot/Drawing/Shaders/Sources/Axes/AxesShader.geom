@@ -10,7 +10,7 @@ const int shortIntervals = 5;
 const int longTickSize = 4;
 const int shortTickSize = 2;
 
-void drawHorizontalTicks(){
+void drawHorizontalTicks() {
     float shortStep = stepX / shortIntervals;
 
     for (float i = gl_in[0].gl_Position.x; i < gl_in[1].gl_Position.x; i += stepX) {

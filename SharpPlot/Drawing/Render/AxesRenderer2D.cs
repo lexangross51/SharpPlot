@@ -74,7 +74,7 @@ public class AxesRenderer2D
     {
         var proj = _projection.ToArray();
 
-        var step = (float)CalculateStepAxis(proj[0], proj[1], _settings.ScreenWidth - _settings.Margin,
+        var step = CalculateStepAxis(proj[0], proj[1], _settings.ScreenWidth - _settings.Margin,
             (_settings.ScreenWidth - _settings.Margin) / 10.0);
         double start = Math.Floor(proj[0] / step) * step;
         double end = Math.Ceiling(proj[1] / step) * step;
@@ -95,7 +95,7 @@ public class AxesRenderer2D
         _shaderAxes.Use();
         _shaderAxes.SetUniform("isHorizontal", 1);
         _shaderAxes.SetUniform("projection", _projection.ProjectionMatrix);
-        _shaderAxes.SetUniform("stepX", step);
+        _shaderAxes.SetUniform("stepX", (float)step);
         _shaderAxes.SetUniform("vRatio", (float)vRatio);
 
         GL.DrawArrays(PrimitiveType.Lines, 0, 2);
@@ -105,7 +105,7 @@ public class AxesRenderer2D
     {
         var proj = _projection.ToArray();
         
-        var step = (float)CalculateStepAxis(proj[2], proj[3], _settings.ScreenHeight - _settings.Margin,
+        var step = CalculateStepAxis(proj[2], proj[3], _settings.ScreenHeight - _settings.Margin,
             (_settings.ScreenHeight - _settings.Margin) / 10.0);
         double start = Math.Floor(proj[2] / step) * step;
         double end = Math.Ceiling(proj[3] / step) * step;
@@ -126,7 +126,7 @@ public class AxesRenderer2D
         _shaderAxes.Use();
         _shaderAxes.SetUniform("isHorizontal", 0);
         _shaderAxes.SetUniform("projection", _projection.ProjectionMatrix);
-        _shaderAxes.SetUniform("stepY", step);
+        _shaderAxes.SetUniform("stepY", (float)step);
         _shaderAxes.SetUniform("hRatio", (float)hRatio);
 
         GL.DrawArrays(PrimitiveType.Lines, 0, 2);
