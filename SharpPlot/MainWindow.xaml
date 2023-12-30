@@ -14,7 +14,7 @@
             <RowDefinition Height="20"/>
         </Grid.RowDefinitions>
         
-        <controls:View2D x:Name="View2D" Grid.Row="0" Margin="5" />
+        <controls:View2D x:Name="View2D" Grid.Row="0" Margin="5, 20, 20, 5" />
         
         <StatusBar Grid.Row="1">
             <DockPanel>

@@ -55,8 +55,9 @@ public class View2D : GLWpfControl
         MouseLeftButtonDown += OnMouseLeftButtonDown;
         MouseLeftButtonUp += OnMouseLeftButtonUp;
         MouseMove += OnMouseMove;
+        MouseWheel += OnMouseWheel;
     }
-
+    
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         _settings = new RenderSettings
@@ -107,6 +108,16 @@ public class View2D : GLWpfControl
         InvalidateVisual();
     }
 
+    private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        var pos = e.GetPosition(this);
+        var current = _projection.FromWorldToProjection(pos.X, pos.Y, _settings);
+        
+        _camera.Zoom(current.X, current.Y, e.Delta);
+        
+        InvalidateVisual();
+    }
+    
     private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         _isMouseDown = false;

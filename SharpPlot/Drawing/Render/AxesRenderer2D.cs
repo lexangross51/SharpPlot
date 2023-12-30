@@ -14,7 +14,8 @@ public class AxesRenderer2D
     private readonly float[] _vertices;
     private readonly OrthographicProjection _projection;
     private RenderSettings _settings;
-
+    private readonly double[] _multipliers = [1, 2, 5, 10];
+    
     public AxesRenderer2D(OrthographicProjection projection, RenderSettings settings)
     {
         _projection = projection;
@@ -49,11 +50,32 @@ public class AxesRenderer2D
     public void UpdateViewPort(RenderSettings settings) 
         => _settings = settings;
     
+    private double CalculateStepAxis(double begin, double end, double measure, double textWidth)
+    {
+        var dH = end - begin;
+
+        var fontSize = textWidth * dH / measure;
+        var dTiles = Math.Floor(dH / fontSize);
+
+        var dStep = dH / dTiles;
+        var dMul = Math.Pow(10, Math.Floor(Math.Log10(dStep)));
+
+        int i;
+        for (i = 1; i < _multipliers.Length - 1; ++i)
+        {
+            if (dMul * _multipliers[i] > dStep) break;
+        }
+
+        dStep = _multipliers[i] * dMul;
+        return dStep;
+    }
+    
     private void RenderHorizontalAxis()
     {
         var proj = _projection.ToArray();
-        
-        var step = 0.5f;
+
+        var step = (float)CalculateStepAxis(proj[0], proj[1], _settings.ScreenWidth - _settings.Margin,
+            (_settings.ScreenWidth - _settings.Margin) / 10.0);
         double start = Math.Floor(proj[0] / step) * step;
         double end = Math.Ceiling(proj[1] / step) * step;
         var vRatio = (proj[3] - proj[2]) / _settings.ScreenHeight;
@@ -83,7 +105,8 @@ public class AxesRenderer2D
     {
         var proj = _projection.ToArray();
         
-        var step = 0.5f;
+        var step = (float)CalculateStepAxis(proj[2], proj[3], _settings.ScreenHeight - _settings.Margin,
+            (_settings.ScreenHeight - _settings.Margin) / 10.0);
         double start = Math.Floor(proj[2] / step) * step;
         double end = Math.Ceiling(proj[3] / step) * step;
         var hRatio = (proj[1] - proj[0]) / _settings.ScreenWidth;

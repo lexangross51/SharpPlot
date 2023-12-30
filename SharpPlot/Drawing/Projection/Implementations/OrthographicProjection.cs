@@ -1,28 +1,24 @@
-﻿using OpenTK.Mathematics;
+﻿using System;
+using OpenTK.Mathematics;
 using SharpPlot.Drawing.Projection.Interfaces;
 using SharpPlot.Drawing.Render;
 
 namespace SharpPlot.Drawing.Projection.Implementations;
 
-public class OrthographicProjection : IProjection, IProjectionConvertable
+public class OrthographicProjection(double left, double right, double bottom, double top, double near, double far)
+    : IProjection, IProjectionConvertable
 {
     private readonly double[] _projectionArray = new double[6];
-    private double _hCenter, _vCenter, _halfHStep, _halfVStep;
+    private double _hCenter = 0.5 * (left + right), _vCenter = 0.5 * (bottom + top);
+    private double _halfHStep = 0.5 * (right - left), _halfVStep = 0.5 * (top - bottom);
+    private readonly double _zCenter = 0.5 * (near + far), _halfZStep = 0.5 * (far - near);
 
     public Matrix4 ProjectionMatrix => Matrix4.CreateOrthographicOffCenter(
             (float)(_hCenter - _halfHStep),
             (float)(_hCenter + _halfHStep),
             (float)(_vCenter - _halfVStep),
             (float)(_vCenter + _halfVStep),
-            -1.0f, 1.0f);
-
-    public OrthographicProjection(double left, double right, double bottom, double top, double near, double far)
-    {
-        _hCenter = 0.5 * (left + right);
-        _vCenter = 0.5 * (bottom + top);
-        _halfHStep = 0.5 * (right - left);
-        _halfVStep = 0.5 * (top - bottom);
-    }
+            (float)(_zCenter - _halfZStep), (float)(_zCenter + _halfZStep));
 
     public double[] ToArray()
     {
@@ -30,15 +26,33 @@ public class OrthographicProjection : IProjection, IProjectionConvertable
         _projectionArray[1] = _hCenter + _halfHStep;
         _projectionArray[2] = _vCenter - _halfVStep;
         _projectionArray[3] = _vCenter + _halfVStep;
-        _projectionArray[4] = -1.0f;
-        _projectionArray[5] = 1.0f;
+        _projectionArray[4] = _zCenter - _halfZStep;
+        _projectionArray[5] = _zCenter + _halfZStep;
 
         return _projectionArray;
     }
 
     public void Scale(double pivotX, double pivotY, double delta)
     {
-        throw new System.NotImplementedException();
+        var scale = delta < 1.05 ? 1.05 : 1.0 / 1.05;
+        var left = pivotX + scale * (_hCenter - _halfHStep - pivotX);
+        var right = pivotX + scale * (_hCenter - _halfHStep + 2.0 * _halfHStep - pivotX);
+        var bottom = pivotY + scale * (_vCenter - _halfVStep - pivotY);
+        var top = pivotY + scale * (_vCenter - _halfVStep + 2.0 * _halfVStep - pivotY);
+        var newCenterX = (left + right) / 2.0;
+        var newCenterY = (bottom + top) / 2.0;
+        var newHalfHStep = newCenterX - left;
+        var newHalfVStep = newCenterY - bottom;
+
+        if (!(Math.Abs(2 * newHalfHStep) >
+              Math.Max(Math.Abs(newCenterX - _halfHStep), Math.Abs(newCenterX + _halfHStep)) * 1E-05) ||
+            !(Math.Abs(2 * newHalfVStep) >
+              Math.Max(Math.Abs(newCenterY - _halfVStep), Math.Abs(newCenterY + _halfVStep)) * 1E-05)) return;
+        
+        _hCenter = newCenterX;
+        _vCenter = newCenterY;
+        _halfHStep = newHalfHStep;
+        _halfVStep = newHalfVStep;
     }
 
     public void Translate(double dx, double dy)
@@ -69,7 +83,7 @@ public class OrthographicProjection : IProjection, IProjectionConvertable
         {
             result.Y = _vCenter + _halfVStep;
         }
-        else if (sy > settings.ScreenHeight)
+        else if (sy > settings.ScreenHeight - settings.Margin)
         {
             result.Y = _vCenter - _halfVStep;
         }

@@ -3,8 +3,7 @@
 layout(lines) in;
 layout(line_strip, max_vertices = 80) out;
 
-uniform float stepX, stepY;
-uniform float hRatio, vRatio;
+uniform float stepX, stepY, hRatio, vRatio;
 uniform int isHorizontal;
 
 const int shortIntervals = 5;
