@@ -14,10 +14,8 @@ public class OrthographicProjection(double left, double right, double bottom, do
     private readonly double _zCenter = 0.5 * (near + far), _halfZStep = 0.5 * (far - near);
 
     public Matrix4 ProjectionMatrix => Matrix4.CreateOrthographicOffCenter(
-            (float)(_hCenter - _halfHStep),
-            (float)(_hCenter + _halfHStep),
-            (float)(_vCenter - _halfVStep),
-            (float)(_vCenter + _halfVStep),
+            (float)(_hCenter - _halfHStep), (float)(_hCenter + _halfHStep),
+            (float)(_vCenter - _halfVStep), (float)(_vCenter + _halfVStep),
             (float)(_zCenter - _halfZStep), (float)(_zCenter + _halfZStep));
 
     public double[] ToArray()
@@ -36,9 +34,9 @@ public class OrthographicProjection(double left, double right, double bottom, do
     {
         var scale = delta < 1.05 ? 1.05 : 1.0 / 1.05;
         var left = pivotX + scale * (_hCenter - _halfHStep - pivotX);
-        var right = pivotX + scale * (_hCenter - _halfHStep + 2.0 * _halfHStep - pivotX);
+        var right = pivotX + scale * (_hCenter + _halfHStep - pivotX);
         var bottom = pivotY + scale * (_vCenter - _halfVStep - pivotY);
-        var top = pivotY + scale * (_vCenter - _halfVStep + 2.0 * _halfVStep - pivotY);
+        var top = pivotY + scale * (_vCenter + _halfVStep - pivotY);
         var newCenterX = (left + right) / 2.0;
         var newCenterY = (bottom + top) / 2.0;
         var newHalfHStep = newCenterX - left;

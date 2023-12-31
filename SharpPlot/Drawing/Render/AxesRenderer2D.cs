@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 using SharpPlot.Drawing.Buffers;
 using SharpPlot.Drawing.Projection.Implementations;
@@ -15,6 +16,8 @@ public class AxesRenderer2D
     private readonly OrthographicProjection _projection;
     private RenderSettings _settings;
     private readonly double[] _multipliers = [1, 2, 5, 10];
+
+    private readonly List<double> _tmpPoints = [];
     
     public AxesRenderer2D(OrthographicProjection projection, RenderSettings settings)
     {
@@ -75,10 +78,16 @@ public class AxesRenderer2D
         var proj = _projection.ToArray();
 
         var step = CalculateStepAxis(proj[0], proj[1], _settings.ScreenWidth - _settings.Margin,
-            (_settings.ScreenWidth - _settings.Margin) / 10.0);
+            80.0);
         double start = Math.Floor(proj[0] / step) * step;
-        double end = Math.Ceiling(proj[1] / step) * step;
+        double end = start + Math.Floor((proj[1] - start) / step) * step;
         var vRatio = (proj[3] - proj[2]) / _settings.ScreenHeight;
+        
+        _tmpPoints.Clear();
+        for (double fCur = Math.Floor(proj[0] / step) * step; fCur <= proj[1]; fCur += step)
+        {
+            _tmpPoints.Add(Math.Abs(fCur) < step / 4 ? 0.0 : fCur);
+        }
         
         _vertices[0] = Math.Abs(start) < step / 4 ? 0.0f : (float)start;
         _vertices[1] = (float)(proj[2] + _settings.Margin * vRatio);
@@ -106,7 +115,7 @@ public class AxesRenderer2D
         var proj = _projection.ToArray();
         
         var step = CalculateStepAxis(proj[2], proj[3], _settings.ScreenHeight - _settings.Margin,
-            (_settings.ScreenHeight - _settings.Margin) / 10.0);
+            80.0);
         double start = Math.Floor(proj[2] / step) * step;
         double end = Math.Ceiling(proj[3] / step) * step;
         var hRatio = (proj[1] - proj[0]) / _settings.ScreenWidth;
