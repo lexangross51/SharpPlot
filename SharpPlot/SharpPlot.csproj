@@ -27,19 +27,18 @@
       <None Update="Drawing\Shaders\Sources\Axes\AxesShader.frag">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Drawing\Shaders\Sources\Axes\AxesShader.geom">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Drawing\Shaders\Sources\Axes\AxesShader.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Drawing\Shaders\Sources\Axes\BoxShader.geom">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Drawing\" />
+      <None Update="Drawing\Shaders\Sources\Text\TextShader.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Drawing\Shaders\Sources\Text\TextShader.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 
