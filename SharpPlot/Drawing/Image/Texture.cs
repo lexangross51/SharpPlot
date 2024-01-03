@@ -51,11 +51,6 @@ public class Texture : IDisposable
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
         GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
     }
-
-    public static Texture CreateFromString(string text)
-    {
-        throw new NotImplementedException();
-    }
     
     public void Use(TextureUnit unit = TextureUnit.Texture0)
     {

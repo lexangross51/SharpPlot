@@ -7,14 +7,15 @@ using OpenTK.Wpf;
 using SharpPlot.Drawing.Camera;
 using SharpPlot.Drawing.Projection.Implementations;
 using SharpPlot.Drawing.Render;
+
 namespace SharpPlot.Drawing.Controls;
 
 public class View2D : GLWpfControl
 {
-    private RenderSettings _settings;
-    private readonly BaseCamera _camera;
-    private readonly OrthographicProjection _projection;
-    private AxesRenderer2D? _axesRenderer;
+    private FrameSettings _settings = null!;
+    private OrthographicProjection _projection = null!;
+    private BaseCamera _camera = null!;
+    private AxesRenderer2D _axesRenderer = null!;
     
     private double _mouseXPrevious, _mouseYPrevious; 
     private bool _isMouseDown;
@@ -46,10 +47,25 @@ public class View2D : GLWpfControl
             RenderContinuously = false
         });
         
+        Loaded += OnLoaded;
+    }
+    
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
         _projection = new OrthographicProjection(-1, 1, -1, 1, -1, 1);
         _camera = new Camera2D(_projection);
         
-        Loaded += OnLoaded;
+        _settings = new FrameSettings
+        {
+            ScreenWidth = ActualWidth,
+            ScreenHeight = ActualHeight,
+        };
+
+        _axesRenderer = new AxesRenderer2D(_projection, _settings);
+
+        _axesRenderer.HorizontalAxisName = "X";
+        _axesRenderer.VerticalAxisName = "Y";
+
         Render += RenderScene;
         SizeChanged += OnSizeChanged;
         MouseLeftButtonDown += OnMouseLeftButtonDown;
@@ -57,25 +73,13 @@ public class View2D : GLWpfControl
         MouseMove += OnMouseMove;
         MouseWheel += OnMouseWheel;
     }
-    
-    private void OnLoaded(object sender, RoutedEventArgs e)
-    {
-        _settings = new RenderSettings
-        {
-            ScreenWidth = ActualWidth,
-            ScreenHeight = ActualHeight,
-            Margin = 25
-        };
-        
-        _axesRenderer = new AxesRenderer2D(_projection, _settings);
-    }
 
     private void RenderScene(TimeSpan obj)
     {
         GL.ClearColor(Color4.White);
         GL.Clear(ClearBufferMask.ColorBufferBit);
-        
-        _axesRenderer?.Render();
+
+        _axesRenderer.Render();
     }
     
     private void OnSizeChanged(object sender, SizeChangedEventArgs e)
@@ -83,7 +87,7 @@ public class View2D : GLWpfControl
         _settings.ScreenWidth = ActualWidth;
         _settings.ScreenHeight = ActualHeight;
         
-        _axesRenderer?.UpdateViewPort(_settings);
+        _axesRenderer.UpdateViewPort(_settings);
         
         InvalidateVisual();
     }

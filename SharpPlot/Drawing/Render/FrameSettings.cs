@@ -1,6 +1,6 @@
 ﻿namespace SharpPlot.Drawing.Render;
 
-public struct RenderSettings
+public record FrameSettings
 {
     public double ScreenWidth { get; set; }
     public double ScreenHeight { get; set; }

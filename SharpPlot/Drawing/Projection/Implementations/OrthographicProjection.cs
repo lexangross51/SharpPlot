@@ -59,7 +59,7 @@ public class OrthographicProjection(double left, double right, double bottom, do
         _vCenter += dy;
     }
 
-    public Vector3d FromWorldToProjection(double sx, double sy, RenderSettings settings)
+    public Vector3d FromWorldToProjection(double sx, double sy, FrameSettings settings)
     {
         var result = new Vector3d();
         
@@ -94,7 +94,7 @@ public class OrthographicProjection(double left, double right, double bottom, do
         return result;
     }
 
-    public Vector3d FromProjectionToWorld(double px, double py, RenderSettings settings)
+    public Vector3d FromProjectionToWorld(double px, double py, FrameSettings settings)
     {
         var result = new Vector3d();
         

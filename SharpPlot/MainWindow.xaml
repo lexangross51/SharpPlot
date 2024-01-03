@@ -19,12 +19,12 @@
         <StatusBar Grid.Row="1">
             <DockPanel>
                 <TextBlock Text="X:"/>
-                <TextBlock Text="{Binding ElementName=View2D, Path=XPosition, StringFormat={}{0:G3}}" Margin="5, 0"/>
+                <TextBlock Text="{Binding ElementName=View2D, Path=XPosition, StringFormat={}{0:G5}}" Margin="5, 0"/>
             </DockPanel>
             
             <DockPanel>
                 <TextBlock Text="Y:"/>
-                <TextBlock Text="{Binding ElementName=View2D, Path=YPosition, StringFormat={}{0:G3}}" Margin="5, 0"/>
+                <TextBlock Text="{Binding ElementName=View2D, Path=YPosition, StringFormat={}{0:G5}}" Margin="5, 0"/>
             </DockPanel>
         </StatusBar>
     </Grid>

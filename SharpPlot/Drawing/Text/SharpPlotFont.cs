@@ -6,8 +6,7 @@ public class SharpPlotFont
 {
     private string _fontFamily = "Times New Roman";
     private FontStyle _fontStyle = FontStyle.Regular;
-    private float _size = 14;
-    private Font _systemFont;
+    private float _size = 16;
 
     public float Size
     {
@@ -15,7 +14,7 @@ public class SharpPlotFont
         set
         {
             _size = value;
-            _systemFont = new Font(_fontFamily, _size, _fontStyle);
+            SystemFont = new Font(_fontFamily, _size, _fontStyle);
         }
     }
 
@@ -25,7 +24,7 @@ public class SharpPlotFont
         set
         {
             _fontFamily = value; 
-            _systemFont = new Font(_fontFamily, _size, _fontStyle);
+            SystemFont = new Font(_fontFamily, _size, _fontStyle);
         }
     }
 
@@ -35,15 +34,15 @@ public class SharpPlotFont
         set
         {
             _fontStyle = value;
-            _systemFont = new Font(_fontFamily, _size, _fontStyle);
+            SystemFont = new Font(_fontFamily, _size, _fontStyle);
         }
     }
     
-    public Font SystemFont => _systemFont;
+    public Font SystemFont { get; private set; }
 
-    public SharpPlotFont() => _systemFont = new Font(_fontFamily, _size, _fontStyle);
+    public SharpPlotFont() => SystemFont = new Font(_fontFamily, _size, _fontStyle);
 
     public void Print(double x, double y, double z, string text, Color color, 
         TextRenderOrientation orientation = TextRenderOrientation.Horizontal) 
-        => TextRenderer.GetInstance().Print(x, y, z, text, this, color, orientation);
+        => TextRenderer.Instance.Print(x, y, z, text, this, color, orientation);
 }
