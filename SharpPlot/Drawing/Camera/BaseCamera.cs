@@ -1,15 +1,14 @@
 ﻿using OpenTK.Mathematics;
-using SharpPlot.Drawing.Projection.Interfaces;
 
 namespace SharpPlot.Drawing.Camera;
 
-public abstract class BaseCamera(IProjection projection)
+public abstract class BaseCamera
 {
-    protected readonly IProjection Projection = projection;
-
+    protected bool CanMove;
+    
     public abstract Matrix4 ViewMatrix { get; }
     
     public abstract void Zoom(double pivotX, double pivotY, double delta);
 
-    public abstract void Move(double dx, double dy);
+    public abstract void Move(Vector3d from, Vector3d to);
 }

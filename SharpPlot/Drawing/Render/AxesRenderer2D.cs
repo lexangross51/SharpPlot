@@ -27,8 +27,8 @@ public class AxesRenderer2D
     public bool DrawShortTicks { get; set; } = true;
     public SharpPlotFont Font { get; set; } = new();
 
-    public string HorizontalAxisName { get; set; } = string.Empty;
-    public string VerticalAxisName { get; set; } = string.Empty;
+    public string HorizontalAxisName { get; set; } = "X";
+    public string VerticalAxisName { get; set; } = "Y";
     
     public AxesRenderer2D(OrthographicProjection projection, FrameSettings settings)
     {
@@ -148,7 +148,7 @@ public class AxesRenderer2D
         
         for (double curr = Math.Floor(proj[0] / step) * step; curr <= proj[1]; curr += step)
         {
-            var msVal = Math.Abs(curr) < 1E-15 ? "0" : curr.ToString("G9");
+            var msVal = Math.Abs(curr) < 1E-15 ? "0" : curr.ToString("G7");
             TextRenderer.TextMeasure(msVal, Font, out var stringSize, out _);
             var stringPositionL = curr - stringSize * 0.5 * hRatio;
             var stringPositionR = curr + stringSize * 0.5 * hRatio;
@@ -219,7 +219,7 @@ public class AxesRenderer2D
         
         for (double curr = Math.Floor(proj[2] / step) * step; curr <= proj[3]; curr += step)
         {
-            var msVal = Math.Abs(curr) < 1E-15 ? "0" : curr.ToString("G9");
+            var msVal = Math.Abs(curr) < 1E-15 ? "0" : curr.ToString("G7");
             TextRenderer.TextMeasure(msVal, Font, out var stringSize, out _);
             var stringPositionL = curr - stringSize * 0.5 * vRatio;
             var stringPositionR = curr + stringSize * 0.5 * vRatio;

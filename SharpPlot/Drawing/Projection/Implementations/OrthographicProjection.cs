@@ -94,9 +94,9 @@ public class OrthographicProjection(double left, double right, double bottom, do
         return result;
     }
 
-    public Vector3d FromProjectionToWorld(double px, double py, FrameSettings settings)
+    public Vector2d FromProjectionToWorld(double px, double py, double pz, FrameSettings settings)
     {
-        var result = new Vector3d();
+        var result = new Vector2d();
         
         var dx = px - (_hCenter - _halfHStep);
         var dy = py - (_vCenter - _halfVStep);

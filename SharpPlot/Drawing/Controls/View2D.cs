@@ -5,38 +5,104 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Wpf;
 using SharpPlot.Drawing.Camera;
+using SharpPlot.Drawing.Interactivity.Implementations;
+using SharpPlot.Drawing.Interactivity.Interfaces;
 using SharpPlot.Drawing.Projection.Implementations;
 using SharpPlot.Drawing.Render;
+using SharpPlot.Drawing.Text;
 
 namespace SharpPlot.Drawing.Controls;
 
 public class View2D : GLWpfControl
 {
+    private Vector3d _mousePreviousPosition, _mouseCurrentPosition;
     private FrameSettings _settings = null!;
-    private OrthographicProjection _projection = null!;
     private BaseCamera _camera = null!;
+    private IMouseTracker _mouseTracker = null!;
     private AxesRenderer2D _axesRenderer = null!;
     
-    private double _mouseXPrevious, _mouseYPrevious; 
-    private bool _isMouseDown;
-
+    #region Dependency properties
+    
     public static readonly DependencyProperty XPositionProperty = DependencyProperty.Register(
         nameof(XPosition), typeof(double), typeof(View2D), new PropertyMetadata(default(double)));
 
-    public static readonly DependencyProperty YPositionProperty = DependencyProperty.Register(
-        nameof(YPosition), typeof(double), typeof(View2D), new PropertyMetadata(default(double)));
-    
     public double XPosition
     {
         get => (double)GetValue(XPositionProperty);
         set => SetValue(XPositionProperty, value);
     }
+    
+    public static readonly DependencyProperty YPositionProperty = DependencyProperty.Register(
+        nameof(YPosition), typeof(double), typeof(View2D), new PropertyMetadata(default(double)));
 
     public double YPosition
     {
         get => (double)GetValue(YPositionProperty);
         set => SetValue(YPositionProperty, value);
     }
+
+    public static readonly DependencyProperty HorizontalAxisNameProperty = DependencyProperty.Register(
+        nameof(HorizontalAxisName), typeof(string), typeof(View2D), new PropertyMetadata(default(string)));
+
+    public string HorizontalAxisName
+    {
+        get => (string)GetValue(HorizontalAxisNameProperty);
+        set
+        {
+            SetValue(HorizontalAxisNameProperty, value);
+            _axesRenderer.HorizontalAxisName = value;
+        }
+    }
+
+    public static readonly DependencyProperty VerticalAxisNameProperty = DependencyProperty.Register(
+        nameof(VerticalAxisName), typeof(string), typeof(View2D), new PropertyMetadata(default(string)));
+
+    public string VerticalAxisName
+    {
+        get => (string)GetValue(VerticalAxisNameProperty);
+        set
+        {
+            SetValue(VerticalAxisNameProperty, value);
+            _axesRenderer.VerticalAxisName = value;
+        }
+    }
+
+    public static readonly DependencyProperty DrawLongTicksProperty = DependencyProperty.Register(
+        nameof(DrawLongTicks), typeof(bool), typeof(View2D), new PropertyMetadata(default(bool)));
+
+    public bool DrawLongTicks
+    {
+        get => (bool)GetValue(DrawLongTicksProperty);
+        set
+        {
+            SetValue(DrawLongTicksProperty, value);
+            _axesRenderer.DrawLongTicks = value;
+        }
+    }
+
+    public static readonly DependencyProperty DrawShortTicksProperty = DependencyProperty.Register(
+        nameof(DrawShortTicks), typeof(bool), typeof(View2D), new PropertyMetadata(default(bool)));
+
+    public bool DrawShortTicks
+    {
+        get => (bool)GetValue(DrawShortTicksProperty);
+        set
+        {
+            SetValue(DrawShortTicksProperty, value);
+            _axesRenderer.DrawShortTicks = value;
+        }
+    }
+
+    public static readonly DependencyProperty FontProperty = DependencyProperty.Register(
+        nameof(Font), typeof(SharpPlotFont), typeof(View2D), new PropertyMetadata(default(SharpPlotFont)));
+
+    public SharpPlotFont Font
+    {
+        get => (SharpPlotFont)GetValue(FontProperty);
+        set => SetValue(FontProperty, value);
+    }
+    
+    #endregion
     
     public View2D()
     {
@@ -48,30 +114,38 @@ public class View2D : GLWpfControl
         });
         
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
-    
+
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        _projection = new OrthographicProjection(-1, 1, -1, 1, -1, 1);
-        _camera = new Camera2D(_projection);
-        
         _settings = new FrameSettings
         {
             ScreenWidth = ActualWidth,
             ScreenHeight = ActualHeight,
         };
-
-        _axesRenderer = new AxesRenderer2D(_projection, _settings);
-
-        _axesRenderer.HorizontalAxisName = "X";
-        _axesRenderer.VerticalAxisName = "Y";
+        
+        var projection = new OrthographicProjection(-1, 1, -1, 1, -1, 1);
+        _camera = new Camera2D(projection, _settings);
+        _axesRenderer = new AxesRenderer2D(projection, _settings);
+        _mouseTracker = new MouseTracker(projection, _settings);
 
         Render += RenderScene;
         SizeChanged += OnSizeChanged;
-        MouseLeftButtonDown += OnMouseLeftButtonDown;
-        MouseLeftButtonUp += OnMouseLeftButtonUp;
         MouseMove += OnMouseMove;
         MouseWheel += OnMouseWheel;
+        MouseLeftButtonDown += OnMouseLeftButtonDown;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        Render -= RenderScene;
+        SizeChanged -= OnSizeChanged;
+        MouseMove -= OnMouseMove;
+        MouseWheel -= OnMouseWheel;
+        Loaded -= OnLoaded;
+        Unloaded -= OnUnloaded;
+        MouseLeftButtonDown -= OnMouseLeftButtonDown;
     }
 
     private void RenderScene(TimeSpan obj)
@@ -86,28 +160,32 @@ public class View2D : GLWpfControl
     {
         _settings.ScreenWidth = ActualWidth;
         _settings.ScreenHeight = ActualHeight;
-        
         _axesRenderer.UpdateViewPort(_settings);
-        
         InvalidateVisual();
+    }
+    
+    private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        var mousePosition = e.GetPosition(this);
+        _mousePreviousPosition.X = mousePosition.X;
+        _mousePreviousPosition.Y = mousePosition.Y;
     }
     
     private void OnMouseMove(object sender, MouseEventArgs e)
     {
-        var mousePosition = e.GetPosition(this);
-        var current = _projection.FromWorldToProjection(mousePosition.X, mousePosition.Y, _settings);
+        var mousePosition = e.GetPosition(this); 
+        _mouseCurrentPosition.X = mousePosition.X;
+        _mouseCurrentPosition.Y = mousePosition.Y;
         
-        XPosition = current.X;
-        YPosition = current.Y;
+        _mouseTracker.Update(mousePosition.X, mousePosition.Y);
+        XPosition = _mouseTracker.X;
+        YPosition = _mouseTracker.Y;
         
-        if (!_isMouseDown) return;
-
-        var previous = _projection.FromWorldToProjection(_mouseXPrevious, _mouseYPrevious, _settings);
+        if (Mouse.LeftButton != MouseButtonState.Pressed) return;
         
-        _camera.Move(-current.X + previous.X, -current.Y + previous.Y);
-
-        _mouseXPrevious = mousePosition.X;
-        _mouseYPrevious = mousePosition.Y;
+        _camera.Move(_mousePreviousPosition, _mouseCurrentPosition);
+        _mousePreviousPosition.X = mousePosition.X;
+        _mousePreviousPosition.Y = mousePosition.Y;
         
         InvalidateVisual();
     }
@@ -115,24 +193,8 @@ public class View2D : GLWpfControl
     private void OnMouseWheel(object sender, MouseWheelEventArgs e)
     {
         var pos = e.GetPosition(this);
-        var current = _projection.FromWorldToProjection(pos.X, pos.Y, _settings);
         
-        _camera.Zoom(current.X, current.Y, e.Delta);
-        
+        _camera.Zoom(pos.X, pos.Y, e.Delta);
         InvalidateVisual();
-    }
-    
-    private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-    {
-        _isMouseDown = false;
-    }
-
-    private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        var mousePosition = e.GetPosition(this);
-        
-        _isMouseDown = true;
-        _mouseXPrevious = mousePosition.X;
-        _mouseYPrevious = mousePosition.Y;
     }
 }
