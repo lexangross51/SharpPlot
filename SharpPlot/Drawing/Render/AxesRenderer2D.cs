@@ -13,7 +13,7 @@ public class AxesRenderer2D
     private const int LongTickSize = 5;
     private const int ShortTickSize = 2;
     private const int ShortIntervals = 5;
-    private const double TextWidth = 80.0;
+    private const double TextWidth = 100.0;
     
     private readonly ShaderProgram _shaderAxes, _shaderBox;
     private readonly VertexArrayObject _vao;
