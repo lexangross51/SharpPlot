@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 using OpenTK.Graphics.OpenGL4;
@@ -6,10 +7,13 @@ using OpenTK.Mathematics;
 using OpenTK.Wpf;
 using SharpPlot.Drawing.Camera;
 using SharpPlot.Drawing.Interactivity.Implementations;
-using SharpPlot.Drawing.Interactivity.Interfaces;
 using SharpPlot.Drawing.Projection.Implementations;
 using SharpPlot.Drawing.Render;
+using SharpPlot.Drawing.Render.Implementations;
+using SharpPlot.Drawing.Render.Implementations.RenderStrategies;
+using SharpPlot.Drawing.Render.Interfaces;
 using SharpPlot.Drawing.Text;
+using SharpPlot.Helpers;
 
 namespace SharpPlot.Drawing.Controls;
 
@@ -17,11 +21,30 @@ public class View2D : GLWpfControl
 {
     private Vector3d _mousePreviousPosition, _mouseCurrentPosition;
     private FrameSettings _settings = null!;
-    private BaseCamera _camera = null!;
-    private IMouseTracker _mouseTracker = null!;
+    private Camera2D _camera = null!;
+    private MouseTracker _mouseTracker = null!;
     private AxesRenderer2D _axesRenderer = null!;
+    private IRenderer _objectsRenderer = null!;
     
     #region Dependency properties
+
+    public static readonly DependencyProperty ObjectsSourceProperty = DependencyProperty.Register(
+        nameof(ObjectsSource), typeof(IEnumerable<IRenderStrategy>), typeof(View2D),
+        new PropertyMetadata(default(IEnumerable<IRenderStrategy>)));
+
+    public IEnumerable<IRenderStrategy> ObjectsSource
+    {
+        get => (IEnumerable<IRenderStrategy>)GetValue(ObjectsSourceProperty);
+        set
+        {
+            SetValue(ObjectsSourceProperty, value);
+
+            foreach (var obj in value)
+            {
+                _objectsRenderer.AddRenderable(obj);
+            }
+        }
+    }
     
     public static readonly DependencyProperty XPositionProperty = DependencyProperty.Register(
         nameof(XPosition), typeof(double), typeof(View2D), new PropertyMetadata(default(double)));
@@ -129,6 +152,10 @@ public class View2D : GLWpfControl
         _camera = new Camera2D(projection, _settings);
         _axesRenderer = new AxesRenderer2D(projection, _settings);
         _mouseTracker = new MouseTracker(projection, _settings);
+        _objectsRenderer = new ObjectsRenderer2D(projection, _settings);
+
+        Utilities.ReadData("solution18000", out var points, out _);
+        _objectsRenderer.AddRenderable(new MeshRenderer(projection, points));
 
         Render += RenderScene;
         SizeChanged += OnSizeChanged;
@@ -153,6 +180,7 @@ public class View2D : GLWpfControl
         GL.ClearColor(Color4.White);
         GL.Clear(ClearBufferMask.ColorBufferBit);
 
+        _objectsRenderer.Render();
         _axesRenderer.Render();
     }
     

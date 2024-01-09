@@ -57,7 +57,6 @@ public class AxesRenderer2D
         _shaderAxes.Use();
         _shaderAxes.GetAttributeLocation("position", out var location);
         _vao.SetAttributePointer(location, 2, VertexAttribPointerType.Float, false, 2 * sizeof(float), 0);
-        
         _vao.Unbind();
     }
     

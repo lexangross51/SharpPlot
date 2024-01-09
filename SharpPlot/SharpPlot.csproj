@@ -39,6 +39,12 @@
       <None Update="Drawing\Shaders\Sources\Text\TextShader.vert">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Drawing\Shaders\Sources\Objects\SimpleFragmentShader.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Drawing\Shaders\Sources\Objects\SimpleVertexShader.vert">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 

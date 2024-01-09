@@ -11,7 +11,7 @@ public class OrthographicProjection(double left, double right, double bottom, do
     private readonly double[] _projectionArray = new double[6];
     private double _hCenter = 0.5 * (left + right), _vCenter = 0.5 * (bottom + top);
     private double _halfHStep = 0.5 * (right - left), _halfVStep = 0.5 * (top - bottom);
-    private readonly double _zCenter = 0.5 * (near + far), _halfZStep = 0.5 * (far - near);
+    private double _zCenter = 0.5 * (near + far), _halfZStep = 0.5 * (far - near);
 
     public Matrix4 ProjectionMatrix => Matrix4.CreateOrthographicOffCenter(
             (float)(_hCenter - _halfHStep), (float)(_hCenter + _halfHStep),
@@ -28,6 +28,17 @@ public class OrthographicProjection(double left, double right, double bottom, do
         _projectionArray[5] = _zCenter + _halfZStep;
 
         return _projectionArray;
+    }
+
+    public void SetProjection(double[] projection)
+    {
+        _hCenter = 0.5 * (projection[0] + projection[1]);
+        _vCenter = 0.5 * (projection[2] + projection[3]);
+        _zCenter = 0.5 * (projection[4] + projection[5]);
+        
+        _halfHStep = 0.5 * (projection[1] - projection[0]);
+        _halfVStep = 0.5 * (projection[3] - projection[2]);
+        _halfZStep = 0.5 * (projection[5] - projection[4]);
     }
 
     public void Scale(double pivotX, double pivotY, double delta)
