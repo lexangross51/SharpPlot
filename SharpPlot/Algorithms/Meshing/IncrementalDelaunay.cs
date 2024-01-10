@@ -59,8 +59,17 @@ public class IncrementalDelaunay
 
         var triangles = _tris.CollectAll().ToList();
         DeleteSuperTriangle(triangles);
-        Console.WriteLine(DateTime.Now);
-        
+
+        foreach (var triangle in triangles)
+        {
+            for (var i = 0; i < triangle.Points.Length; i++)
+            {
+                var p = triangle.Points[i];
+                p.Id -= 3;
+                triangle.Points[i] = p;
+            }
+        }
+
         return new Mesh(triangles, points.ToList());
     }
 
@@ -69,6 +78,7 @@ public class IncrementalDelaunay
         _badTriangles.Clear();
         _uniqueEdges.Clear();
         _duplicates.Clear();
+
         _tris.Query(p, _badTriangles);
 
         // Take only unique edges
@@ -91,12 +101,14 @@ public class IncrementalDelaunay
         }
 
         // Make new triangles
-        foreach (var t in _uniqueEdges.Select(e => new Triangle(e.P1, e.P2, p)))
+        foreach (var e in _uniqueEdges)
         {
+            var t = new Triangle(e.P1, e.P2, p);
+            // _triangles.Add(t);
             _tris.Insert(t, t.Bounds);
         }
     }
     
-    private static void DeleteSuperTriangle(List<ITriangle> triangles)
+    private void DeleteSuperTriangle(List<ITriangle> triangles)
         => triangles.RemoveAll(t => t.Points.Any(p => p.Id is 0 or 1 or 2));
 }

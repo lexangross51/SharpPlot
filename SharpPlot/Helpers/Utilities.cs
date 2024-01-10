@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using SharpPlot.Geometry;
+using SharpPlot.Geometry.Interfaces;
 
 namespace SharpPlot.Helpers;
 
@@ -26,6 +27,33 @@ public static class Utilities
             });
             values.Add(words[2]);
         }
+    }
+    
+    public static void WriteTriangles(string path, IEnumerable<ITriangle> triangles)
+    {
+        var sw = new StreamWriter($"{path}/points");
+        foreach (var p in triangles.SelectMany(t => t.Points))
+        {
+            sw.WriteLine($"{p.X} {p.Y}");
+        }
+        sw.Close();
+    }
+
+    public static void WriteMesh(string path, IMesh mesh)
+    {
+        var sw = new StreamWriter($"{path}/points");
+        foreach (var p in mesh.Points)
+        {
+            sw.WriteLine($"{p.X} {p.Y}");
+        }
+        sw.Close();
+        
+        sw = new StreamWriter($"{path}/elements");
+        foreach (var triangle in mesh.Triangles)
+        {
+            sw.WriteLine($"{triangle.Points[0].Id} {triangle.Points[1].Id} {triangle.Points[2].Id}");
+        }
+        sw.Close();
     }
     
     public static void ReadData(string filename, out List<Point3D> points)

@@ -22,7 +22,7 @@ public class MeshRenderer : IRenderStrategy
     private float[] _vertices = null!;
     private uint[] _indices = null!;
     
-    public Color4 MeshColor { get; set; } = Color4.Black;
+    public Color4 MeshColor { get; set; } = Color4.Blue;
 
     public MeshRenderer(IProjection projection, Mesh mesh)
     {
@@ -55,7 +55,7 @@ public class MeshRenderer : IRenderStrategy
         
         _shader.Use();
         _shader.GetAttributeLocation("position", out var location);
-        _vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 3, 0);
+        _vao.SetAttributePointer(location, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
         _vao.Unbind();
     }
 
@@ -101,8 +101,10 @@ public class MeshRenderer : IRenderStrategy
         _shader.SetUniform("projection", _projection.ProjectionMatrix);
         
         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-        GL.DrawElements(PrimitiveType.Triangles, _indices.Length / 3, DrawElementsType.UnsignedInt, _indices);
+        GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+        
+        _vao.Unbind();
     }
 
     private void UpdateView(IMesh mesh)
