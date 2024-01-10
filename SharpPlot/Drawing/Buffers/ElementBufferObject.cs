@@ -11,13 +11,13 @@ public class ElementBufferObject : IDisposable
     public ElementBufferObject(uint[] indices, BufferUsageHint hint = BufferUsageHint.StaticDraw)
     {
         _handle = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.ArrayBuffer, _handle);
-        GL.BufferData(BufferTarget.ArrayBuffer, indices.Length * sizeof(uint), indices, hint);
+        GL.BindBuffer(BufferTarget.ElementArrayBuffer, _handle);
+        GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, hint);
     }
 
-    public void Bind() => GL.BindBuffer(BufferTarget.ArrayBuffer, _handle);
+    public void Bind() => GL.BindBuffer(BufferTarget.ElementArrayBuffer, _handle);
 
-    public void Unbind() => GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+    public void Unbind() => GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
     
     private void Dispose(bool disposing)
     {
