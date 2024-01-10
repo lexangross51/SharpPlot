@@ -4,14 +4,15 @@ using System.Drawing;
 using System.Linq;
 using SharpPlot.Algorithms.Tree;
 using SharpPlot.Geometry;
+using SharpPlot.Geometry.Implementations;
 using SharpPlot.Geometry.Interfaces;
 
 namespace SharpPlot.Algorithms.Meshing;
 
 public class IncrementalDelaunay
 {
-    private QuadTree<ITriangle> _tris = null!;
-    private HashSet<ITriangle> _badTriangles = null!;
+    private QuadTree<IElement> _tris = null!;
+    private HashSet<IElement> _badTriangles = null!;
     private HashSet<Edge> _uniqueEdges = null!;
     private HashSet<Edge> _duplicates = null!;
     private int _pointId;
@@ -23,7 +24,7 @@ public class IncrementalDelaunay
         
         _uniqueEdges = new HashSet<Edge>(2 * pointsCount);
         _duplicates = new HashSet<Edge>(2 * pointsCount);
-        _badTriangles = new HashSet<ITriangle>(2 * pointsCount);
+        _badTriangles = new HashSet<IElement>(2 * pointsCount);
 
         double minX = points.Min(p => p.X);
         double minY = points.Min(p => p.Y);
@@ -36,7 +37,7 @@ public class IncrementalDelaunay
         double midX = (minX + maxX) / 2.0;
         double midY = (minY + maxY) / 2.0;
         
-        _tris = new QuadTree<ITriangle>(new RectangleF((float)(minX - 10.0 * deltaMax), (float)(minY - 10.0 * deltaMax), 
+        _tris = new QuadTree<IElement>(new RectangleF((float)(minX - 10.0 * deltaMax), (float)(minY - 10.0 * deltaMax), 
             20.0f * (float)deltaMax, 20.0f * (float)deltaMax));
 
         // Super triangle
@@ -109,6 +110,6 @@ public class IncrementalDelaunay
         }
     }
     
-    private void DeleteSuperTriangle(List<ITriangle> triangles)
+    private void DeleteSuperTriangle(List<IElement> triangles)
         => triangles.RemoveAll(t => t.Points.Any(p => p.Id is 0 or 1 or 2));
 }

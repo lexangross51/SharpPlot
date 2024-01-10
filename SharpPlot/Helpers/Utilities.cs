@@ -29,7 +29,7 @@ public static class Utilities
         }
     }
     
-    public static void WriteTriangles(string path, IEnumerable<ITriangle> triangles)
+    public static void WriteTriangles(string path, IEnumerable<IElement> triangles)
     {
         var sw = new StreamWriter($"{path}/points");
         foreach (var p in triangles.SelectMany(t => t.Points))
@@ -49,7 +49,7 @@ public static class Utilities
         sw.Close();
         
         sw = new StreamWriter($"{path}/elements");
-        foreach (var triangle in mesh.Triangles)
+        foreach (var triangle in mesh.Elements)
         {
             sw.WriteLine($"{triangle.Points[0].Id} {triangle.Points[1].Id} {triangle.Points[2].Id}");
         }

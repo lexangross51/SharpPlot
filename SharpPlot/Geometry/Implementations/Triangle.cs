@@ -3,30 +3,29 @@ using System.Collections.Generic;
 using System.Drawing;
 using SharpPlot.Geometry.Interfaces;
 
-namespace SharpPlot.Geometry;
+namespace SharpPlot.Geometry.Implementations;
 
-public class Triangle : ITriangle
+public class Triangle : IElement
 {
     private double _circumcircleX, _circumcircleY, _circumcircleR;
-    
+
+    public ElementType Type => ElementType.Triangle;
     public int Id { get; set; }
     public Point3D[] Points { get; }
     public Edge[] Edges { get; }
-    public IList<ITriangle?> Neighbors { get; }
+    public IList<IElement?> Neighbors { get; }
     public RectangleF Bounds { get; private set; }
     
-    private Triangle()
+    private Triangle(int nodesCount)
     {
-        Points = new Point3D[3];
-        Edges = new Edge[3];
-        Neighbors = new List<ITriangle?>(3);
+        Points = new Point3D[nodesCount];
+        Edges = new Edge[nodesCount];
+        Neighbors = new List<IElement?>(nodesCount);
     }
     
-    public Triangle(Point3D a, Point3D b, Point3D c) : this()
+    public Triangle(params Point3D[] points) : this(points.Length)
     {
-        Points[0] = a;
-        Points[1] = b;
-        Points[2] = c;
+        Points = points;
         
         MakeEdges();
         BuildCircumcircle();

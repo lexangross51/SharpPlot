@@ -8,12 +8,13 @@ using SharpPlot.Drawing.Projection.Interfaces;
 using SharpPlot.Drawing.Render.Interfaces;
 using SharpPlot.Drawing.Shaders;
 using SharpPlot.Geometry;
+using SharpPlot.Geometry.Implementations;
 using SharpPlot.Geometry.Interfaces;
 using SharpPlot.Helpers;
 
 namespace SharpPlot.Drawing.Render.Implementations.RenderStrategies;
 
-public class MeshRenderer : IRenderStrategy
+public class Mesh2DRenderer : IRenderStrategy
 {
     private readonly IProjection _projection;
     private ShaderProgram _shader = null!;
@@ -21,10 +22,11 @@ public class MeshRenderer : IRenderStrategy
     private IncrementalDelaunay? _delaunay;
     private float[] _vertices = null!;
     private uint[] _indices = null!;
+    private ElementType _elementType;
     
     public Color4 MeshColor { get; set; } = Color4.Blue;
 
-    public MeshRenderer(IProjection projection, Mesh mesh)
+    public Mesh2DRenderer(IProjection projection, Mesh mesh)
     {
         ThrowHelper.ThrowIfNull(mesh, nameof(mesh));
         _projection = projection;
@@ -33,7 +35,7 @@ public class MeshRenderer : IRenderStrategy
         InitShaderProgram();
     }
 
-    public MeshRenderer(IProjection projection, IEnumerable<Point3D> points)
+    public Mesh2DRenderer(IProjection projection, IEnumerable<Point3D> points)
     {
         ThrowHelper.ThrowIfNull(points, nameof(points));
         _projection = projection;
@@ -64,23 +66,50 @@ public class MeshRenderer : IRenderStrategy
         UpdateView(mesh);
         
         var points = mesh.Points;
-        var elements = mesh.Triangles;
+        var elements = mesh.Elements;
 
-        _vertices = new float[points.Count * 3];
-        _indices = new uint[elements.Count * 3];
+        if (elements.Count == 0 || points.Count == 0) return;
 
-        for (int i = 0; i < points.Count; i++)
+        _elementType = elements[0].Type == ElementType.Triangle ? ElementType.Triangle : ElementType.Quadrilateral; 
+        
+        if (_elementType == ElementType.Triangle)
         {
-            _vertices[3 * i + 0] = (float)points[i].X;
-            _vertices[3 * i + 1] = (float)points[i].Y;
-            _vertices[3 * i + 2] = (float)points[i].Z;
+            _vertices = new float[points.Count * 3];
+            _indices = new uint[elements.Count * 3];
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                _vertices[3 * i + 0] = (float)points[i].X;
+                _vertices[3 * i + 1] = (float)points[i].Y;
+                _vertices[3 * i + 2] = (float)points[i].Z;
+            }
+
+            for (int i = 0; i < elements.Count; i++)
+            {
+                _indices[3 * i + 0] = (uint)elements[i].Points[0].Id;
+                _indices[3 * i + 1] = (uint)elements[i].Points[1].Id;
+                _indices[3 * i + 2] = (uint)elements[i].Points[2].Id;
+            }
         }
-
-        for (int i = 0; i < elements.Count; i++)
+        else
         {
-            _indices[3 * i + 0] = (uint)elements[i].Points[0].Id;
-            _indices[3 * i + 1] = (uint)elements[i].Points[1].Id;
-            _indices[3 * i + 2] = (uint)elements[i].Points[2].Id;
+            _vertices = new float[points.Count * 3];
+            _indices = new uint[elements.Count * 4];
+
+            for (int i = 0; i < points.Count; i++)
+            {
+                _vertices[3 * i + 0] = (float)points[i].X;
+                _vertices[3 * i + 1] = (float)points[i].Y;
+                _vertices[3 * i + 2] = (float)points[i].Z;
+            }
+
+            for (int i = 0; i < elements.Count; i++)
+            {
+                _indices[3 * i + 0] = (uint)elements[i].Points[0].Id;
+                _indices[3 * i + 1] = (uint)elements[i].Points[1].Id;
+                _indices[3 * i + 2] = (uint)elements[i].Points[2].Id;
+                _indices[3 * i + 3] = (uint)elements[i].Points[4].Id;
+            }
         }
     }
 
@@ -101,7 +130,8 @@ public class MeshRenderer : IRenderStrategy
         _shader.SetUniform("projection", _projection.ProjectionMatrix);
         
         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-        GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+        GL.DrawElements(_elementType == ElementType.Triangle ? PrimitiveType.Triangles : PrimitiveType.Quads,
+            _indices.Length, DrawElementsType.UnsignedInt, 0);
         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
         
         _vao.Unbind();

@@ -155,7 +155,7 @@ public class View2D : GLWpfControl
         _objectsRenderer = new ObjectsRenderer2D(projection, _settings);
 
         Utilities.ReadData("solution18000", out var points, out _);
-        _objectsRenderer.AddRenderable(new MeshRenderer(projection, points));
+        _objectsRenderer.AddRenderable(new Mesh2DRenderer(projection, points));
 
         Render += RenderScene;
         SizeChanged += OnSizeChanged;
