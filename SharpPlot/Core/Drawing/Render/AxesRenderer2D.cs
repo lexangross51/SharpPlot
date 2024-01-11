@@ -45,12 +45,12 @@ public class AxesRenderer2D
         TextRenderer.Instance.Settings = _settings;
         
         _shaderAxes = new ShaderProgram(
-            "Drawing/Shaders/Sources/Axes/AxesShader.vert",
-            "Drawing/Shaders/Sources/Axes/AxesShader.frag");
+            "Core/Drawing/Shaders/Sources/Axes/AxesShader.vert",
+            "Core/Drawing/Shaders/Sources/Axes/AxesShader.frag");
 
-        _shaderBox = new ShaderProgram("Drawing/Shaders/Sources/Axes/AxesShader.vert",
-            "Drawing/Shaders/Sources/Axes/AxesShader.frag",
-            "Drawing/Shaders/Sources/Axes/BoxShader.geom");
+        _shaderBox = new ShaderProgram("Core/Drawing/Shaders/Sources/Axes/AxesShader.vert",
+            "Core/Drawing/Shaders/Sources/Axes/AxesShader.frag",
+            "Core/Drawing/Shaders/Sources/Axes/BoxShader.geom");
         
         _vao = new VertexArrayObject();
         _vbo = new VertexBufferObject<float>(_vertices);

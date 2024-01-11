@@ -47,8 +47,8 @@ public class Mesh2DRenderer : IRenderStrategy
     private void InitShaderProgram()
     {
         _shader = new ShaderProgram(
-            "Drawing/Shaders/Sources/Objects/SimpleVertexShader.vert",
-            "Drawing/Shaders/Sources/Objects/SimpleFragmentShader.frag"
+            "Core/Drawing/Shaders/Sources/Objects/SimpleVertexShader.vert",
+            "Core/Drawing/Shaders/Sources/Objects/SimpleFragmentShader.frag"
         );
 
         _vao = new VertexArrayObject();

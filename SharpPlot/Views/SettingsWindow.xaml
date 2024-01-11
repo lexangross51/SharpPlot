@@ -1,0 +1,24 @@
+﻿<Window x:Class="SharpPlot.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:vm="clr-namespace:SharpPlot.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance vm:SettingsViewModel, IsDesignTimeCreatable=True}"
+        Title="{Binding Title}" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TabControl Grid.Row="0">
+            <TabItem Header="Control">
+                <GroupBox Header="Font">
+                    
+                </GroupBox>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

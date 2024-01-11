@@ -39,8 +39,8 @@ public class TextRenderer
         _startPoint = new PointF(0.0f, 0.0f);
         
         _shader = new ShaderProgram(
-            "Drawing/Shaders/Sources/Text/TextShader.vert",
-            "Drawing/Shaders/Sources/Text/TextShader.frag");
+            "Core/Drawing/Shaders/Sources/Text/TextShader.vert",
+            "Core/Drawing/Shaders/Sources/Text/TextShader.frag");
         
         _vao = new VertexArrayObject();
         _vbo = new VertexBufferObject<float>(_textPosition);

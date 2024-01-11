@@ -10,10 +10,8 @@ using SharpPlot.Core.Drawing.Interactivity.Implementations;
 using SharpPlot.Core.Drawing.Projection.Implementations;
 using SharpPlot.Core.Drawing.Render;
 using SharpPlot.Core.Drawing.Render.Implementations;
-using SharpPlot.Core.Drawing.Render.Implementations.RenderStrategies;
 using SharpPlot.Core.Drawing.Render.Interfaces;
 using SharpPlot.Core.Drawing.Text;
-using SharpPlot.Core.Helpers;
 
 namespace SharpPlot.Core.Drawing.Controls;
 
@@ -153,9 +151,6 @@ public class View2D : GLWpfControl
         _axesRenderer = new AxesRenderer2D(projection, _settings);
         _mouseTracker = new MouseTracker(projection, _settings);
         _objectsRenderer = new ObjectsRenderer2D(projection, _settings);
-
-        Utilities.ReadData("solution18000", out var points, out _);
-        _objectsRenderer.AddRenderable(new Mesh2DRenderer(projection, points));
 
         Render += RenderScene;
         SizeChanged += OnSizeChanged;
