@@ -9,16 +9,74 @@
         Title="{Binding Title}" Height="450" Width="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        
         <TabControl Grid.Row="0">
             <TabItem Header="Control">
-                <GroupBox Header="Font">
+                <UniformGrid Rows="2" Columns="2">
+                    <GroupBox Header="Axes">
+                        <StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Horizontal axis name" Margin="0, 1"/>
+                                    <TextBlock Text="Vertical axis name"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1" Width="50">
+                                    <TextBox Text="{Binding HorizontalAxisName, UpdateSourceTrigger=PropertyChanged}" 
+                                             Margin="5, 1"/>
+                                    <TextBox Text="{Binding VerticalAxisName, UpdateSourceTrigger=PropertyChanged}" 
+                                             Margin="5, 0"/>
+                                </StackPanel>
+                            </Grid>
+                            
+                            <CheckBox Content="Show long ticks" IsChecked="{Binding ShowLongTicks}"/>
+                            <CheckBox Content="Show short ticks" IsChecked="{Binding ShowShortTicks}"/>
+                        </StackPanel>
+                    </GroupBox>
                     
-                </GroupBox>
+                    <GroupBox Header="Font">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Font family" Margin="0, 1"/>
+                            <ComboBox Grid.Row="0" Grid.Column="1" Margin="5, 1"
+                                      ItemsSource="{Binding FontFamilies}"
+                                      SelectedItem="{Binding SelectedFontFamily}"/>
+                            
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Font style" Margin="0, 1"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" Margin="5, 0"
+                                      ItemsSource="{Binding FontStyles}"
+                                      SelectedItem="{Binding SelectedFontStyle}"/>
+                            
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Font size" Margin="0, 1"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" Margin="5, 1"
+                                     Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"/>
+                        </Grid>
+                    </GroupBox>
+                </UniformGrid>
             </TabItem>
         </TabControl>
+        
+        <DockPanel Grid.Row="1" HorizontalAlignment="Right" Margin="5">
+            <Button Content="Ok" Width="60"/>
+            <Button Content="Cancel" Width="60" Margin="3, 0"/>
+        </DockPanel>
+        
     </Grid>
 </Window>

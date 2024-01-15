@@ -29,7 +29,7 @@ public partial class App
         services.AddSingleton<IUserDialogService, UserDialogService>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<SettingsViewModel>();
-
+        
         services.AddSingleton(s =>
         {
             var viewModel = s.GetRequiredService<MainViewModel>();
