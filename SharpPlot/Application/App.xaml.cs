@@ -12,9 +12,9 @@ namespace SharpPlot.Application;
 
 public partial class App
 {
-    private IServiceProvider? _services;
+    private static IServiceProvider? _services;
     
-    public IServiceProvider Services 
+    public static IServiceProvider Services 
         => _services ??= InitializeServices().BuildServiceProvider();
     
     public App()
@@ -52,6 +52,6 @@ public partial class App
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        Services.GetRequiredService<IUserDialogService>().OpenMainWindow();
+        Services.GetRequiredService<MainWindow>().Show();
     }
 }

@@ -2,6 +2,5 @@
 
 public interface IUserDialogService
 {
-    void OpenMainWindow();
     void OpenSettingsWindow();
 }

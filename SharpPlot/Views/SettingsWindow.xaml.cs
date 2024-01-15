@@ -1,11 +1,6 @@
-﻿using System.Windows;
+﻿namespace SharpPlot.Views;
 
-namespace SharpPlot.Views;
-
-public partial class SettingsWindow : Window
+public partial class SettingsWindow
 {
-    public SettingsWindow()
-    {
-        InitializeComponent();
-    }
+    public SettingsWindow() => InitializeComponent();
 }
