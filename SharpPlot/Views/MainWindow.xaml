@@ -7,17 +7,12 @@
         xmlns:vm="clr-namespace:SharpPlot.ViewModels"
         mc:Ignorable="d"
         Title="{Binding Title}"
-        Width="800" Height="450"
+        Width="800" Height="800"
         d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
         x:Name="MainWindowForm">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        
-        <Menu Grid.Row="0">
+    
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
             <MenuItem Header="File">
                 <MenuItem Header="Open"/>
                 <MenuItem Header="Save"/>
@@ -26,20 +21,44 @@
             <MenuItem Header="Settings" Command="{Binding OpenSettings}"/>
         </Menu>
         
-        <controls:View2D x:Name="View2D" Grid.Row="1" Margin="5, 5, 20, 5" />
+        <TabControl>
+            <TabItem Header="2D">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <controls:View2D x:Name="View2D" Grid.Row="0" Margin="5, 5, 20, 5" 
+                                     HorizontalAxisName="{Binding Settings.HorizontalAxisName}"
+                                     VerticalAxisName="{Binding Settings.VerticalAxisName}"
+                                     DrawShortTicks="{Binding Settings.DrawShortTicks}"
+                                     DrawLongTicks="{Binding Settings.DrawLongTicks}"/>
         
-        <StatusBar Grid.Row="2">
-            <DockPanel>
-                <TextBlock Text="X:"/>
-                <TextBlock Text="{Binding ElementName=View2D, Path=XPosition, StringFormat={}{0:G5}}" 
-                           Margin="5, 0"/>
-            </DockPanel>
-            
-            <DockPanel>
-                <TextBlock Text="Y:"/>
-                <TextBlock Text="{Binding ElementName=View2D, Path=YPosition, StringFormat={}{0:G5}}" 
-                           Margin="5, 0"/>
-            </DockPanel>
-        </StatusBar>
-    </Grid>
+                    <StatusBar Grid.Row="1">
+                        <DockPanel>
+                            <TextBlock Text="X:"/>
+                            <TextBlock Text="{Binding ElementName=View2D, Path=XPosition, StringFormat={}{0:G5}}" 
+                                       Margin="5, 0"/>
+                            <TextBlock Text="Y:"/>
+                            <TextBlock Text="{Binding ElementName=View2D, Path=YPosition, StringFormat={}{0:G5}}" 
+                                       Margin="5, 0"/>
+                        </DockPanel>
+                    </StatusBar>
+                </Grid>
+            </TabItem>
+        
+            <TabItem Header="3D">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+        
+                    <controls:View3D x:Name="View3D" Grid.Row="1" Margin="5, 5, 20, 5" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
 </Window>

@@ -36,8 +36,8 @@
                                 </StackPanel>
                             </Grid>
                             
-                            <CheckBox Content="Show long ticks" IsChecked="{Binding ShowLongTicks}"/>
-                            <CheckBox Content="Show short ticks" IsChecked="{Binding ShowShortTicks}"/>
+                            <CheckBox Content="Draw long ticks" IsChecked="{Binding DrawLongTicks}"/>
+                            <CheckBox Content="Draw short ticks" IsChecked="{Binding DrawShortTicks}"/>
                         </StackPanel>
                     </GroupBox>
                     
@@ -74,7 +74,7 @@
         </TabControl>
         
         <DockPanel Grid.Row="1" HorizontalAlignment="Right" Margin="5">
-            <Button Content="Ok" Width="60"/>
+            <Button Content="Ok" Width="60" Command="{Binding SaveSettingsCommand}"/>
             <Button Content="Cancel" Width="60" Margin="3, 0"/>
         </DockPanel>
         

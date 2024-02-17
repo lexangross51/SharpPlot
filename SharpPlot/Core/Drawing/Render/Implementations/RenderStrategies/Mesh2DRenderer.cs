@@ -4,6 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SharpPlot.Core.Algorithms.Meshing;
 using SharpPlot.Core.Drawing.Buffers;
+using SharpPlot.Core.Drawing.Camera;
 using SharpPlot.Core.Drawing.Projection.Interfaces;
 using SharpPlot.Core.Drawing.Render.Interfaces;
 using SharpPlot.Core.Drawing.Shaders;
@@ -16,7 +17,6 @@ namespace SharpPlot.Core.Drawing.Render.Implementations.RenderStrategies;
 
 public class Mesh2DRenderer : IRenderStrategy
 {
-    private readonly IProjection _projection;
     private ShaderProgram _shader = null!;
     private VertexArrayObject _vao = null!;
     private IncrementalDelaunay? _delaunay;
@@ -24,21 +24,27 @@ public class Mesh2DRenderer : IRenderStrategy
     private uint[] _indices = null!;
     private ElementType _elementType;
     
+    public IProjection Projection { get; set; }
+    
+    public ICamera Camera { get; set; }
+
     public Color4 MeshColor { get; set; } = Color4.Blue;
 
-    public Mesh2DRenderer(IProjection projection, Mesh mesh)
+    public Mesh2DRenderer(IProjection projection, ICamera camera, Mesh mesh)
     {
         ThrowHelper.ThrowIfNull(mesh, nameof(mesh));
-        _projection = projection;
+        Projection = projection;
+        Camera = camera;
         
         MakeData(mesh);
         InitShaderProgram();
     }
 
-    public Mesh2DRenderer(IProjection projection, IEnumerable<Point3D> points)
+    public Mesh2DRenderer(IProjection projection, ICamera camera, IEnumerable<Point3D> points)
     {
         ThrowHelper.ThrowIfNull(points, nameof(points));
-        _projection = projection;
+        Projection = projection;
+        Camera = camera;
         
         MakeData(points);
         InitShaderProgram();
@@ -120,14 +126,14 @@ public class Mesh2DRenderer : IRenderStrategy
         
         MakeData(mesh);
     }
-    
+
     public void Render()
     {
         _vao.Bind();
         _shader.Use();
         _shader.SetUniform("color", MeshColor);
         _shader.SetUniform("modelView", Matrix4.Identity);
-        _shader.SetUniform("projection", _projection.ProjectionMatrix);
+        _shader.SetUniform("projection", Projection.ProjectionMatrix);
         
         GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
         GL.DrawElements(_elementType == ElementType.Triangle ? PrimitiveType.Triangles : PrimitiveType.Quads,
@@ -146,6 +152,6 @@ public class Mesh2DRenderer : IRenderStrategy
         double minY = points.Min(p => p.Y);
         double maxY = points.Max(p => p.Y);
 
-        _projection.SetProjection([minX, maxX, minY, maxY, -1.0, 1.0]);
+        Projection.SetProjection([minX, maxX, minY, maxY, -1.0, 1.0]);
     }
 }

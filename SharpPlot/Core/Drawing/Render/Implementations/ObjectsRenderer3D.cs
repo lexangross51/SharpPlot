@@ -5,15 +5,13 @@ using SharpPlot.Core.Drawing.Render.Interfaces;
 
 namespace SharpPlot.Core.Drawing.Render.Implementations;
 
-public class ObjectsRenderer2D(IProjection projection, FrameSettings settings) : IRenderer
+public class ObjectsRenderer3D(IProjection projection, FrameSettings settings) : IRenderer
 {
     private readonly List<IRenderStrategy> _objects = [];
     
     public void AddRenderable(IRenderStrategy renderable)
     {
         if (_objects.Contains(renderable)) return;
-
-        renderable.Projection = projection;
         _objects.Add(renderable);
     }
 

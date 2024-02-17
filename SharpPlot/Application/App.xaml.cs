@@ -3,8 +3,8 @@ using System.Globalization;
 using System.Threading;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
-using SharpPlot.Infrastructure.Implementations;
 using SharpPlot.Infrastructure.Interfaces;
+using SharpPlot.Infrastructure.Services;
 using SharpPlot.ViewModels;
 using SharpPlot.Views;
 
@@ -29,6 +29,7 @@ public partial class App
         services.AddSingleton<IUserDialogService, UserDialogService>();
         services.AddSingleton<MainViewModel>();
         services.AddSingleton<SettingsViewModel>();
+        services.AddSingleton<View2DSettingsService>();
         
         services.AddSingleton(s =>
         {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SharpPlot.Infrastructure.Interfaces;
 using SharpPlot.Views;
 
-namespace SharpPlot.Infrastructure.Implementations;
+namespace SharpPlot.Infrastructure.Services;
 
 public class UserDialogService(IServiceProvider services) : IUserDialogService
 {
