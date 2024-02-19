@@ -20,7 +20,7 @@ public class View3D : GLWpfControl
     private FrameSettings _settings = default!;
     private AxesRenderer3D _axesRenderer = default!;
     private IRenderer _objectsRenderer = default!;
-    private ICamera _camera = default!;
+    private ArcBallCamera _camera = default!;
     
     public View3D()
     {
@@ -44,7 +44,7 @@ public class View3D : GLWpfControl
         };
         
         var projection = new OrthographicProjection(-1, 1, -1, 1, -1, 1);
-        _camera = new Camera3D(projection, _settings);
+        _camera = new ArcBallCamera(projection, _settings) { Radius = 1.0 };
         _axesRenderer = new AxesRenderer3D(projection, _settings);
         _objectsRenderer = new ObjectsRenderer3D(projection, _settings);
 
@@ -53,9 +53,19 @@ public class View3D : GLWpfControl
         MouseMove += OnMouseMove;
         MouseWheel += OnMouseWheel;
         MouseLeftButtonDown += OnMouseLeftButtonDown;
+        MouseLeftButtonUp += OnMouseLeftButtonUp;
 
         _objectsRenderer.AddRenderable(new CubeRenderer(projection, _camera, new Cube()));
     }
+
+    private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        var mousePosition = e.GetPosition(this);
+        _mousePreviousPosition.X = mousePosition.X;
+        _mousePreviousPosition.Y = mousePosition.Y;
+        _camera.StopRotate();
+    }
+
 
     private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
@@ -80,9 +90,7 @@ public class View3D : GLWpfControl
         
         if (Mouse.LeftButton != MouseButtonState.Pressed) return;
         
-        _camera.Move(_mousePreviousPosition, _mouseCurrentPosition);
-        _mousePreviousPosition.X = mousePosition.X;
-        _mousePreviousPosition.Y = mousePosition.Y;
+        _camera.Rotate(_mousePreviousPosition, _mouseCurrentPosition);
         
         InvalidateVisual();
     }
@@ -91,6 +99,10 @@ public class View3D : GLWpfControl
     {
         Render -= RenderScene;
         SizeChanged -= OnSizeChanged;
+        MouseLeftButtonUp -= OnMouseLeftButtonDown;
+        MouseLeftButtonDown -= OnMouseLeftButtonDown;
+        MouseMove -= OnMouseMove;
+        MouseWheel -= OnMouseWheel;
         Loaded -= OnLoaded;
         Unloaded -= OnUnloaded;
     }

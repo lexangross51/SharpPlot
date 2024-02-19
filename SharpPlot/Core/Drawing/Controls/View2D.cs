@@ -206,7 +206,7 @@ public class View2D : GLWpfControl
         
         if (Mouse.LeftButton != MouseButtonState.Pressed) return;
         
-        _camera.Move(_mousePreviousPosition, _mouseCurrentPosition);
+        _camera.Rotate(_mousePreviousPosition, _mouseCurrentPosition);
         _mousePreviousPosition.X = mousePosition.X;
         _mousePreviousPosition.Y = mousePosition.Y;
         

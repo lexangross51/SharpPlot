@@ -22,7 +22,7 @@ public class CubeRenderer : IRenderStrategy
 
     public ICamera Camera { get; set; }
 
-    public Color4 CubeColor { get; set; } = Color4.Black;
+    public Color4 CubeColor { get; set; } = Color4.Blue;
 
     public CubeRenderer(IProjection projection, ICamera camera, Cube cube)
     {

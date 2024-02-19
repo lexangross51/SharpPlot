@@ -14,7 +14,7 @@ public class Camera2D(OrthographicProjection projection, FrameSettings settings)
         projection.Scale(current.X, current.Y, delta);
     }
 
-    public void Move(Vector3d from, Vector3d to)
+    public void Rotate(Vector3d from, Vector3d to)
     {
         var previous = projection.FromWorldToProjection(from.X, from.Y, settings);
         var current = projection.FromWorldToProjection(to.X, to.Y, settings);
